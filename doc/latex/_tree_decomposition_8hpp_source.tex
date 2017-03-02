@@ -1,0 +1,106 @@
+\hypertarget{_tree_decomposition_8hpp_source}{}\section{Tree\+Decomposition.\+hpp}
+\label{_tree_decomposition_8hpp_source}\index{src/\+Tree\+Decomposition.\+hpp@{src/\+Tree\+Decomposition.\+hpp}}
+
+\begin{DoxyCode}
+00001 \textcolor{preprocessor}{#ifndef TREE\_DECOMPOSITION\_H}
+00002 \textcolor{preprocessor}{#define TREE\_DECOMPOSITION\_H}
+00003 
+00004 \textcolor{preprocessor}{#include <iostream>}
+00005 \textcolor{preprocessor}{#include <vector>}
+00006 \textcolor{preprocessor}{#include <fstream>}
+00007 \textcolor{preprocessor}{#include <sstream>}
+00008 \textcolor{preprocessor}{#include <stack>}
+00009 
+00010 \textcolor{preprocessor}{#include "Utils.hpp"}
+00011 \textcolor{preprocessor}{#include "RNAStructure.hpp"}
+00012 
+00013 \textcolor{keyword}{using namespace }\hyperlink{namespacestd}{std};
+00014 
+\Hypertarget{_tree_decomposition_8hpp_source_l00019}\hyperlink{class_bag}{00019} \textcolor{keyword}{class }\hyperlink{class_bag}{Bag}\{
+00020   \textcolor{keyword}{private}:
+00021     vector<int> indices;
+00022     vector<BasePair*> basepairs;
+00023     vector<Loop*> loops;
+00024     \textcolor{keywordtype}{int} id;
+00025 
+00026   \textcolor{keyword}{public}:
+00027     vector<Bag*> children;
+00028     \hyperlink{class_bag}{Bag}* parent;
+00029 
+00034     \hyperlink{class_bag}{Bag}(\textcolor{keywordtype}{int} i);
+00035 
+00040     \textcolor{keywordtype}{void} addIndex(\textcolor{keywordtype}{int} i);
+00041 
+00046     vector<int> getIndices();
+00047 
+00055     \textcolor{keywordtype}{void} orderIndices();
+00056 
+00064     \textcolor{keywordtype}{void} addChild(\hyperlink{class_bag}{Bag} * b);
+00065 
+00071     \textcolor{keywordtype}{void} replaceChild (\hyperlink{class_bag}{Bag} * prev, \hyperlink{class_bag}{Bag} * next);
+00072 
+00077     \textcolor{keywordtype}{void} setParent(\hyperlink{class_bag}{Bag} * b);
+00078 
+00083     \textcolor{keywordtype}{int} numProper();
+00084     
+00089     vector<int> getProperIndices();
+00090     
+00095     vector<Bag*> getChildren();
+00096 
+00102     vector<int> getProperParentIndices();
+00103 
+00110     \textcolor{keywordtype}{int} numProperParentIndices();
+00111 
+00122     \textcolor{keyword}{const} vector<BasePair*> & getProperBasePairs();
+00123 
+00128     \textcolor{keywordtype}{int} width();
+00129     
+00134     \textcolor{keywordtype}{int} getId();
+00135     
+00140     \textcolor{keywordtype}{void} addBasePair(\hyperlink{class_base_pair}{BasePair} * bp);
+00141 
+00147     \textcolor{keywordtype}{void} topologicalSort(vector<Bag *> & result);
+00148 
+00154     \textcolor{keywordtype}{double} scoreBag(vector<Nucleotide> assignment);
+00155 
+00156 
+00157 \};  
+00158 
+00165 ostream& operator<<(ostream& o, \hyperlink{class_bag}{Bag} * b);
+00166 
+\Hypertarget{_tree_decomposition_8hpp_source_l00167}\hyperlink{class_tree_decomposition}{00167} \textcolor{keyword}{class }\hyperlink{class_tree_decomposition}{TreeDecomposition}\{
+00168   \textcolor{keyword}{private}:
+00177     \textcolor{keywordtype}{void} normalize();
+00178     
+00184     \textcolor{keywordtype}{void} replaceRoot(\textcolor{keywordtype}{int} from, \textcolor{keywordtype}{int} to);
+00185 
+00191     \textcolor{keywordtype}{void} showRec(\textcolor{keywordtype}{int} b, \textcolor{keywordtype}{int} depth=0);
+00192 
+00193   \textcolor{keyword}{public}:
+00194     vector<Bag*> bags;  
+00195     vector<int> roots;
+00199     \hyperlink{class_tree_decomposition}{TreeDecomposition}();
+00200     
+00205     vector<Bag*> topologicalSort();
+00206     
+00211     \textcolor{keywordtype}{void} loadFromFile(\textcolor{keywordtype}{string} path);
+00212     
+00217     \textcolor{keywordtype}{void} addStructure(\hyperlink{class_secondary_structure}{SecondaryStructure} * ss);
+00218 
+00223     vector<Bag*> getBags();
+00224 
+00229     \textcolor{keywordtype}{void} show(\textcolor{keywordtype}{int} depth=0);
+00230 \};
+00231 
+\Hypertarget{_tree_decomposition_8hpp_source_l00236}\hyperlink{class_tree_decomposition_factory}{00236} \textcolor{keyword}{class }\hyperlink{class_tree_decomposition_factory}{TreeDecompositionFactory}\{
+00237   \textcolor{keyword}{public}:
+00238     \textcolor{keyword}{virtual} \hyperlink{class_tree_decomposition}{TreeDecomposition}* makeTD(vector<SecondaryStructure*>& v) = 0;
+00239 \};
+00240 
+\Hypertarget{_tree_decomposition_8hpp_source_l00245}\hyperlink{class_t_d_lib_factory}{00245} \textcolor{keyword}{class }\hyperlink{class_t_d_lib_factory}{TDLibFactory} : \textcolor{keyword}{public} \hyperlink{class_tree_decomposition_factory}{TreeDecompositionFactory}\{
+00246   \textcolor{keyword}{public}:
+00247     \hyperlink{class_tree_decomposition}{TreeDecomposition}* makeTD(vector<SecondaryStructure*>& v);
+00248 \};
+00249 
+00250 \textcolor{preprocessor}{#endif}
+\end{DoxyCode}

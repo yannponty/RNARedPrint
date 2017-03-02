@@ -1,0 +1,65 @@
+\hypertarget{_r_n_a_structure_8hpp_source}{}\section{R\+N\+A\+Structure.\+hpp}
+\label{_r_n_a_structure_8hpp_source}\index{src/\+R\+N\+A\+Structure.\+hpp@{src/\+R\+N\+A\+Structure.\+hpp}}
+
+\begin{DoxyCode}
+00001 \textcolor{preprocessor}{#ifndef \_RNA\_STRUCTURE\_H}
+00002 \textcolor{preprocessor}{#define \_RNA\_STRUCTURE\_H}
+00003 
+00004 \textcolor{preprocessor}{#include<vector>}
+00005 \textcolor{preprocessor}{#include<iostream>}
+00006 \textcolor{preprocessor}{#include <float.h>}
+00007 
+00008 \textcolor{preprocessor}{#include "Nucleotide.hpp"}
+00009 
+00010 \textcolor{keyword}{using namespace }\hyperlink{namespacestd}{std};
+\Hypertarget{_r_n_a_structure_8hpp_source_l00014}\hyperlink{class_base_pair}{00014} \textcolor{keyword}{class }\hyperlink{class_base_pair}{BasePair}\{
+00015   \textcolor{keyword}{public}:
+00016     \textcolor{keywordtype}{int} i;
+00017     \textcolor{keywordtype}{int} j;
+00018     \textcolor{keywordtype}{int} id;
+00024     \hyperlink{class_base_pair}{BasePair}(\textcolor{keywordtype}{int} a, \textcolor{keywordtype}{int} b, \textcolor{keywordtype}{int} label=-1);
+00025 
+00032     \textcolor{keywordtype}{double} scoreBasePair(Nucleotide n1, Nucleotide n2);
+00033 
+00034 \};
+00035 
+00042 ostream& operator<<(ostream& o, \hyperlink{class_base_pair}{BasePair}* bp);
+00043 
+00050 ostream& operator<<(ostream& o, const vector<BasePair*> & v);
+00051 
+\Hypertarget{_r_n_a_structure_8hpp_source_l00055}\hyperlink{class_loop}{00055} \textcolor{keyword}{class }\hyperlink{class_loop}{Loop}\{
+00056   \textcolor{keyword}{public}:
+00057     \textcolor{keywordtype}{int} i;
+00058     \textcolor{keywordtype}{int} j;
+00059     vector<BasePair *> basePairs;
+00066     \hyperlink{class_loop}{Loop}(\textcolor{keywordtype}{int} a, \textcolor{keywordtype}{int} b, vector<int> ss);
+00067 \};
+00068 
+\Hypertarget{_r_n_a_structure_8hpp_source_l00072}\hyperlink{class_secondary_structure}{00072} \textcolor{keyword}{class }\hyperlink{class_secondary_structure}{SecondaryStructure}\{
+00073   \textcolor{keyword}{private}:
+00074     vector<BasePair *> basePairs;
+00075     vector<vector<BasePair*> > pos2BPs;
+00076     vector<Loop*> loops;
+00077     vector<vector<Loop*> > pos2Loops;
+00078     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} length;
+00079     \textcolor{keywordtype}{int} id;
+00080 
+00085     \textcolor{keywordtype}{void} parseSS(\textcolor{keywordtype}{string} s);
+00086 
+00087   \textcolor{keyword}{public}:
+00093     \hyperlink{class_secondary_structure}{SecondaryStructure}(\textcolor{keywordtype}{string} s, \textcolor{keywordtype}{int} idd);
+00094     
+00101     vector<int> getSS();
+00102     
+00107     vector<BasePair *> getLabelledBPs();
+00108     
+00113     \textcolor{keywordtype}{int} getLength();
+00114 
+00120     vector<BasePair*> getPartners(\textcolor{keywordtype}{int} i);
+00121 
+00122 \};
+00123 
+00129 \textcolor{keywordtype}{void} saveAsDGF(vector<SecondaryStructure*> SSs, \textcolor{keywordtype}{string} path);
+00130 
+00131 \textcolor{preprocessor}{#endif}
+\end{DoxyCode}

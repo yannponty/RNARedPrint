@@ -1,0 +1,113 @@
+\hypertarget{class_secondary_structure}{}\section{Secondary\+Structure Class Reference}
+\label{class_secondary_structure}\index{Secondary\+Structure@{Secondary\+Structure}}
+
+
+The \hyperlink{class_secondary_structure}{Secondary\+Structure} class represents an R\+NA secondary structure, possibly with pseudoknots.  
+
+
+
+
+{\ttfamily \#include $<$R\+N\+A\+Structure.\+hpp$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_secondary_structure_a97f5e5be69747e369416ccfb385e9144}{Secondary\+Structure} (string s, int idd)
+\begin{DoxyCompactList}\small\item\em \hyperlink{class_secondary_structure}{Secondary\+Structure} Constructs a secondary structure having given id from a dot-\/bracket representation. \end{DoxyCompactList}\item 
+vector$<$ int $>$ \hyperlink{class_secondary_structure_ab085ea78fe168b4f37a3abcfcea1526c}{get\+SS} ()
+\begin{DoxyCompactList}\small\item\em get\+SS Returns a representation of the secondary structure as an array of base pairing partners \end{DoxyCompactList}\item 
+vector$<$ \hyperlink{class_base_pair}{Base\+Pair} $\ast$ $>$ \hyperlink{class_secondary_structure_afc405eddcee83419865b31c76b98b80a}{get\+Labelled\+B\+Ps} ()
+\begin{DoxyCompactList}\small\item\em get\+Labelled\+B\+Ps Returns a set of base pairs decorated by the structure identifier \end{DoxyCompactList}\item 
+int \hyperlink{class_secondary_structure_a9c9c8a6a95cb900ebc1eb37113cd9215}{get\+Length} ()
+\begin{DoxyCompactList}\small\item\em get\+Length Returns the number of nucleotides involved in the secondary structure \end{DoxyCompactList}\item 
+vector$<$ \hyperlink{class_base_pair}{Base\+Pair} $\ast$ $>$ \hyperlink{class_secondary_structure_a6ef03f46376f3a79bd5345f357e96db6}{get\+Partners} (int i)
+\begin{DoxyCompactList}\small\item\em get\+Partners Returns the set of base pairs in which a given position is involved \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{class_secondary_structure}{Secondary\+Structure} class represents an R\+NA secondary structure, possibly with pseudoknots. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_secondary_structure_a97f5e5be69747e369416ccfb385e9144}\label{class_secondary_structure_a97f5e5be69747e369416ccfb385e9144}} 
+\index{Secondary\+Structure@{Secondary\+Structure}!Secondary\+Structure@{Secondary\+Structure}}
+\index{Secondary\+Structure@{Secondary\+Structure}!Secondary\+Structure@{Secondary\+Structure}}
+\subsubsection{\texorpdfstring{Secondary\+Structure()}{SecondaryStructure()}}
+{\footnotesize\ttfamily Secondary\+Structure\+::\+Secondary\+Structure (\begin{DoxyParamCaption}\item[{string}]{s,  }\item[{int}]{idd }\end{DoxyParamCaption})}
+
+
+
+\hyperlink{class_secondary_structure}{Secondary\+Structure} Constructs a secondary structure having given id from a dot-\/bracket representation. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em s} & Dot-\/bracket representation of secondary structure \\
+\hline
+{\em idd} & Uniquer identifier for the secondary structure \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_secondary_structure_afc405eddcee83419865b31c76b98b80a}\label{class_secondary_structure_afc405eddcee83419865b31c76b98b80a}} 
+\index{Secondary\+Structure@{Secondary\+Structure}!get\+Labelled\+B\+Ps@{get\+Labelled\+B\+Ps}}
+\index{get\+Labelled\+B\+Ps@{get\+Labelled\+B\+Ps}!Secondary\+Structure@{Secondary\+Structure}}
+\subsubsection{\texorpdfstring{get\+Labelled\+B\+Ps()}{getLabelledBPs()}}
+{\footnotesize\ttfamily vector$<$ \hyperlink{class_base_pair}{Base\+Pair} $\ast$ $>$ Secondary\+Structure\+::get\+Labelled\+B\+Ps (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+get\+Labelled\+B\+Ps Returns a set of base pairs decorated by the structure identifier 
+
+\begin{DoxyReturn}{Returns}
+Set of base pairs decorated by the structure identifier 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_secondary_structure_a9c9c8a6a95cb900ebc1eb37113cd9215}\label{class_secondary_structure_a9c9c8a6a95cb900ebc1eb37113cd9215}} 
+\index{Secondary\+Structure@{Secondary\+Structure}!get\+Length@{get\+Length}}
+\index{get\+Length@{get\+Length}!Secondary\+Structure@{Secondary\+Structure}}
+\subsubsection{\texorpdfstring{get\+Length()}{getLength()}}
+{\footnotesize\ttfamily int Secondary\+Structure\+::get\+Length (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+get\+Length Returns the number of nucleotides involved in the secondary structure 
+
+\begin{DoxyReturn}{Returns}
+Number of nucleotides involved in the secondary structure 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_secondary_structure_a6ef03f46376f3a79bd5345f357e96db6}\label{class_secondary_structure_a6ef03f46376f3a79bd5345f357e96db6}} 
+\index{Secondary\+Structure@{Secondary\+Structure}!get\+Partners@{get\+Partners}}
+\index{get\+Partners@{get\+Partners}!Secondary\+Structure@{Secondary\+Structure}}
+\subsubsection{\texorpdfstring{get\+Partners()}{getPartners()}}
+{\footnotesize\ttfamily vector$<$ \hyperlink{class_base_pair}{Base\+Pair} $\ast$ $>$ Secondary\+Structure\+::get\+Partners (\begin{DoxyParamCaption}\item[{int}]{i }\end{DoxyParamCaption})}
+
+
+
+get\+Partners Returns the set of base pairs in which a given position is involved 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & Position \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Set of base pairs associated with a given position 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_secondary_structure_ab085ea78fe168b4f37a3abcfcea1526c}\label{class_secondary_structure_ab085ea78fe168b4f37a3abcfcea1526c}} 
+\index{Secondary\+Structure@{Secondary\+Structure}!get\+SS@{get\+SS}}
+\index{get\+SS@{get\+SS}!Secondary\+Structure@{Secondary\+Structure}}
+\subsubsection{\texorpdfstring{get\+S\+S()}{getSS()}}
+{\footnotesize\ttfamily vector$<$ int $>$ Secondary\+Structure\+::get\+SS (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+get\+SS Returns a representation of the secondary structure as an array of base pairing partners 
+
+\begin{DoxyReturn}{Returns}
+Representation of the secondary structure as an array of base pairing partners
+\end{DoxyReturn}
+Remark\+: Should only be called for non-\/pseudoknotted structures 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/R\+N\+A\+Structure.\+hpp\item 
+src/R\+N\+A\+Structure.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,4 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$class_tree_decomposition_factory.html" title="The TreeDecompositionFactory class is an abstract class aimed at producing a tree decomposition from ..." alt="" coords="6,5,183,32"/>
+<area shape="rect" id="node2" href="$class_t_d_lib_factory.html" title="The TDLibFactory class is a concrete implementation of TreeDecompositionFactory based on the TDLib..." alt="" coords="232,5,331,32"/>
+</map>

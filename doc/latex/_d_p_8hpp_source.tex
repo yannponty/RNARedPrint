@@ -1,0 +1,36 @@
+\hypertarget{_d_p_8hpp_source}{}\section{D\+P.\+hpp}
+\label{_d_p_8hpp_source}\index{src/\+D\+P.\+hpp@{src/\+D\+P.\+hpp}}
+
+\begin{DoxyCode}
+00001 \textcolor{preprocessor}{#ifndef DP\_H}
+00002 \textcolor{preprocessor}{#define DP\_H}
+00003 
+00004 \textcolor{preprocessor}{#include <vector>}
+00005 \textcolor{preprocessor}{#include <string>}
+00006 \textcolor{preprocessor}{#include <float.h>}
+00007 \textcolor{preprocessor}{#include <math.h>}
+00008 \textcolor{preprocessor}{#include <cassert>}
+00009 
+00010 \textcolor{preprocessor}{#include "RNAStructure.hpp"}
+00011 \textcolor{preprocessor}{#include "Nucleotide.hpp"}
+00012 \textcolor{preprocessor}{#include "TreeDecomposition.hpp"}
+00013 
+00014 \textcolor{preprocessor}{#define TEMP 37.}
+00015 \textcolor{preprocessor}{#define RT 0.0019872370936902486 * (273.15 + TEMP) * 100}
+00016 
+00022 \textcolor{keywordtype}{void} show(vector<int> indices, vector<Nucleotide> assignments);
+00023 
+00029 \textcolor{keywordtype}{double} BF(\textcolor{keywordtype}{double} dG);
+00030 
+00039 vector<Nucleotide> decode(\textcolor{keywordtype}{long} index, \textcolor{keywordtype}{int} numIndices);
+00040 
+00048 \textcolor{keywordtype}{long} encode(\textcolor{keyword}{const} vector<Nucleotide> & v);
+00049 
+00060 vector<Nucleotide> project(\hyperlink{class_bag}{Bag} * init, \hyperlink{class_bag}{Bag} * dest, \textcolor{keyword}{const} vector<Nucleotide> & val);
+00061 
+00070 \textcolor{keyword}{inline} \textcolor{keywordtype}{void} checkBounds(\textcolor{keywordtype}{long} i1, \textcolor{keywordtype}{long} b1, \textcolor{keywordtype}{long} i2, \textcolor{keywordtype}{long} b2, \textcolor{keywordtype}{string} msg);
+00071 
+00076 \textcolor{keywordtype}{void} computePartitionFunction(\hyperlink{class_tree_decomposition}{TreeDecomposition} * td);
+00077 
+00078 \textcolor{preprocessor}{#endif}
+\end{DoxyCode}

@@ -1,0 +1,82 @@
+\hypertarget{class_base_pair}{}\section{Base\+Pair Class Reference}
+\label{class_base_pair}\index{Base\+Pair@{Base\+Pair}}
+
+
+The \hyperlink{class_base_pair}{Base\+Pair} class encodes a basic base pair.  
+
+
+
+
+{\ttfamily \#include $<$R\+N\+A\+Structure.\+hpp$>$}
+
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_base_pair_ae11e048c14320d131209d1cc2f269420}{Base\+Pair} (int a, int b, int label=-\/1)
+\begin{DoxyCompactList}\small\item\em \hyperlink{class_base_pair}{Base\+Pair} Creates a base pair. \end{DoxyCompactList}\item 
+double \hyperlink{class_base_pair_a2f21c1f146b7dd0c164de88710cebde8}{score\+Base\+Pair} (Nucleotide n1, Nucleotide n2)
+\begin{DoxyCompactList}\small\item\em score\+Base\+Pair Associates a free-\/energy contribution to a base pair, given a pair of nucleotides \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_base_pair_ab0fcfeaac816c4048a835a5c07246a10}\label{class_base_pair_ab0fcfeaac816c4048a835a5c07246a10}} 
+int {\bfseries i}
+\item 
+\mbox{\Hypertarget{class_base_pair_a1e12cec106fade7bf9a9f5c3141dce67}\label{class_base_pair_a1e12cec106fade7bf9a9f5c3141dce67}} 
+int {\bfseries j}
+\item 
+\mbox{\Hypertarget{class_base_pair_a9235400f75562821977c2dbbd5ccaafc}\label{class_base_pair_a9235400f75562821977c2dbbd5ccaafc}} 
+int {\bfseries id}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{class_base_pair}{Base\+Pair} class encodes a basic base pair. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_base_pair_ae11e048c14320d131209d1cc2f269420}\label{class_base_pair_ae11e048c14320d131209d1cc2f269420}} 
+\index{Base\+Pair@{Base\+Pair}!Base\+Pair@{Base\+Pair}}
+\index{Base\+Pair@{Base\+Pair}!Base\+Pair@{Base\+Pair}}
+\subsubsection{\texorpdfstring{Base\+Pair()}{BasePair()}}
+{\footnotesize\ttfamily Base\+Pair\+::\+Base\+Pair (\begin{DoxyParamCaption}\item[{int}]{a,  }\item[{int}]{b,  }\item[{int}]{label = {\ttfamily -\/1} }\end{DoxyParamCaption})}
+
+
+
+\hyperlink{class_base_pair}{Base\+Pair} Creates a base pair. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em a} & 5\textquotesingle{} position of base pair \\
+\hline
+{\em b} & 3\textquotesingle{} position of base pair \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_base_pair_a2f21c1f146b7dd0c164de88710cebde8}\label{class_base_pair_a2f21c1f146b7dd0c164de88710cebde8}} 
+\index{Base\+Pair@{Base\+Pair}!score\+Base\+Pair@{score\+Base\+Pair}}
+\index{score\+Base\+Pair@{score\+Base\+Pair}!Base\+Pair@{Base\+Pair}}
+\subsubsection{\texorpdfstring{score\+Base\+Pair()}{scoreBasePair()}}
+{\footnotesize\ttfamily double Base\+Pair\+::score\+Base\+Pair (\begin{DoxyParamCaption}\item[{Nucleotide}]{n1,  }\item[{Nucleotide}]{n2 }\end{DoxyParamCaption})}
+
+
+
+score\+Base\+Pair Associates a free-\/energy contribution to a base pair, given a pair of nucleotides 
+
+
+\begin{DoxyParams}{Parameters}
+{\em n1} & 5\textquotesingle{} nucleotide \\
+\hline
+{\em n2} & 3\textquotesingle{} nucleotide \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A free-\/energy contribution, or +infty if the nucleotides are not allowed to pair 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/R\+N\+A\+Structure.\+hpp\item 
+src/R\+N\+A\+Structure.\+cpp\end{DoxyCompactItemize}

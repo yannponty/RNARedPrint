@@ -1,0 +1,116 @@
+\begin{theindex}
+
+  \item {add\+Base\+Pair}
+    \subitem {Bag}, \hyperpage{5}
+  \item {add\+Child}
+    \subitem {Bag}, \hyperpage{5}
+  \item {add\+Index}
+    \subitem {Bag}, \hyperpage{5}
+  \item {add\+Structure}
+    \subitem {Tree\+Decomposition}, \hyperpage{14}
+
+  \indexspace
+
+  \item {Bag}, \hyperpage{3}
+    \subitem {add\+Base\+Pair}, \hyperpage{5}
+    \subitem {add\+Child}, \hyperpage{5}
+    \subitem {add\+Index}, \hyperpage{5}
+    \subitem {Bag}, \hyperpage{4}
+    \subitem {get\+Children}, \hyperpage{5}
+    \subitem {get\+Id}, \hyperpage{6}
+    \subitem {get\+Indices}, \hyperpage{6}
+    \subitem {get\+Proper\+Base\+Pairs}, \hyperpage{6}
+    \subitem {get\+Proper\+Indices}, \hyperpage{6}
+    \subitem {get\+Proper\+Parent\+Indices}, \hyperpage{7}
+    \subitem {num\+Proper}, \hyperpage{7}
+    \subitem {num\+Proper\+Parent\+Indices}, \hyperpage{7}
+    \subitem {order\+Indices}, \hyperpage{7}
+    \subitem {replace\+Child}, \hyperpage{8}
+    \subitem {set\+Parent}, \hyperpage{8}
+    \subitem {topological\+Sort}, \hyperpage{8}
+    \subitem {width}, \hyperpage{9}
+  \item {Base\+Pair}, \hyperpage{9}
+    \subitem {Base\+Pair}, \hyperpage{9}
+
+  \indexspace
+
+  \item {get\+Bags}
+    \subitem {Tree\+Decomposition}, \hyperpage{15}
+  \item {get\+Children}
+    \subitem {Bag}, \hyperpage{5}
+  \item {get\+Id}
+    \subitem {Bag}, \hyperpage{6}
+  \item {get\+Indices}
+    \subitem {Bag}, \hyperpage{6}
+  \item {get\+Labelled\+B\+Ps}
+    \subitem {Secondary\+Structure}, \hyperpage{13}
+  \item {get\+Length}
+    \subitem {Secondary\+Structure}, \hyperpage{13}
+  \item {get\+Partners}
+    \subitem {Secondary\+Structure}, \hyperpage{13}
+  \item {get\+Proper\+Base\+Pairs}
+    \subitem {Bag}, \hyperpage{6}
+  \item {get\+Proper\+Indices}
+    \subitem {Bag}, \hyperpage{6}
+  \item {get\+Proper\+Parent\+Indices}
+    \subitem {Bag}, \hyperpage{7}
+  \item {get\+SS}
+    \subitem {Secondary\+Structure}, \hyperpage{14}
+
+  \indexspace
+
+  \item {Labeled\+Base\+Pair}, \hyperpage{10}
+    \subitem {Labeled\+Base\+Pair}, \hyperpage{10}
+  \item {load\+From\+File}
+    \subitem {Tree\+Decomposition}, \hyperpage{15}
+  \item {Loop}, \hyperpage{11}
+    \subitem {Loop}, \hyperpage{11}
+
+  \indexspace
+
+  \item {num\+Proper}
+    \subitem {Bag}, \hyperpage{7}
+  \item {num\+Proper\+Parent\+Indices}
+    \subitem {Bag}, \hyperpage{7}
+
+  \indexspace
+
+  \item {order\+Indices}
+    \subitem {Bag}, \hyperpage{7}
+
+  \indexspace
+
+  \item {replace\+Child}
+    \subitem {Bag}, \hyperpage{8}
+
+  \indexspace
+
+  \item {Secondary\+Structure}, \hyperpage{12}
+    \subitem {get\+Labelled\+B\+Ps}, \hyperpage{13}
+    \subitem {get\+Length}, \hyperpage{13}
+    \subitem {get\+Partners}, \hyperpage{13}
+    \subitem {get\+SS}, \hyperpage{14}
+    \subitem {Secondary\+Structure}, \hyperpage{12}
+  \item {set\+Parent}
+    \subitem {Bag}, \hyperpage{8}
+  \item {show}
+    \subitem {Tree\+Decomposition}, \hyperpage{15}
+
+  \indexspace
+
+  \item {topological\+Sort}
+    \subitem {Bag}, \hyperpage{8}
+    \subitem {Tree\+Decomposition}, \hyperpage{15}
+  \item {Tree\+Decomposition}, \hyperpage{14}
+    \subitem {add\+Structure}, \hyperpage{14}
+    \subitem {get\+Bags}, \hyperpage{15}
+    \subitem {load\+From\+File}, \hyperpage{15}
+    \subitem {show}, \hyperpage{15}
+    \subitem {topological\+Sort}, \hyperpage{15}
+
+  \indexspace
+
+  \item {width}
+    \subitem {Bag}, \hyperpage{9}
+
+\end{theindex}

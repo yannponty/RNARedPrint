@@ -1,0 +1,107 @@
+\hypertarget{class_tree_decomposition}{}\section{Tree\+Decomposition Class Reference}
+\label{class_tree_decomposition}\index{Tree\+Decomposition@{Tree\+Decomposition}}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_tree_decomposition_a4d68db24421f1c049b6535f760df01c1}\label{class_tree_decomposition_a4d68db24421f1c049b6535f760df01c1}} 
+\hyperlink{class_tree_decomposition_a4d68db24421f1c049b6535f760df01c1}{Tree\+Decomposition} ()
+\begin{DoxyCompactList}\small\item\em \hyperlink{class_tree_decomposition}{Tree\+Decomposition} Constructs an empty tree decomposition. \end{DoxyCompactList}\item 
+vector$<$ \hyperlink{class_bag}{Bag} $\ast$ $>$ \hyperlink{class_tree_decomposition_a204777cf6460de25bc733a2fff4fb38c}{topological\+Sort} ()
+\begin{DoxyCompactList}\small\item\em topological\+Sort Builds a topological ordering of bags \end{DoxyCompactList}\item 
+void \hyperlink{class_tree_decomposition_abc2d6a2e7023ada23048b9a4832ef1b1}{load\+From\+File} (string path)
+\begin{DoxyCompactList}\small\item\em load\+From\+File Loads the content of a tree-\/decomposition from a file \end{DoxyCompactList}\item 
+void \hyperlink{class_tree_decomposition_acb7575c5835a306e72590fa755cb5009}{add\+Structure} (\hyperlink{class_secondary_structure}{Secondary\+Structure} $\ast$ss)
+\begin{DoxyCompactList}\small\item\em add\+Structure Adds the structural elements of a secondary structure to the suitable bags in the tree-\/decomposition \end{DoxyCompactList}\item 
+vector$<$ \hyperlink{class_bag}{Bag} $\ast$ $>$ \hyperlink{class_tree_decomposition_a91c0f9cf765260fe982c40fc17c29919}{get\+Bags} ()
+\begin{DoxyCompactList}\small\item\em get\+Bags Returns the set of bags for this tree decomposition \end{DoxyCompactList}\item 
+void \hyperlink{class_tree_decomposition_a328efa3fba52a273997eac5fe43083f3}{show} (int depth=0)
+\begin{DoxyCompactList}\small\item\em show Prints this tree decomposition recursively to standard error \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_tree_decomposition_ac5fd738f6c5c620a2b5935782aecc40f}\label{class_tree_decomposition_ac5fd738f6c5c620a2b5935782aecc40f}} 
+vector$<$ \hyperlink{class_bag}{Bag} $\ast$ $>$ {\bfseries bags}
+\item 
+\mbox{\Hypertarget{class_tree_decomposition_a4eead3f83f7cdcb953618bd226a6ec6b}\label{class_tree_decomposition_a4eead3f83f7cdcb953618bd226a6ec6b}} 
+vector$<$ int $>$ {\bfseries roots}
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_tree_decomposition_acb7575c5835a306e72590fa755cb5009}\label{class_tree_decomposition_acb7575c5835a306e72590fa755cb5009}} 
+\index{Tree\+Decomposition@{Tree\+Decomposition}!add\+Structure@{add\+Structure}}
+\index{add\+Structure@{add\+Structure}!Tree\+Decomposition@{Tree\+Decomposition}}
+\subsubsection{\texorpdfstring{add\+Structure()}{addStructure()}}
+{\footnotesize\ttfamily void Tree\+Decomposition\+::add\+Structure (\begin{DoxyParamCaption}\item[{\hyperlink{class_secondary_structure}{Secondary\+Structure} $\ast$}]{ss }\end{DoxyParamCaption})}
+
+
+
+add\+Structure Adds the structural elements of a secondary structure to the suitable bags in the tree-\/decomposition 
+
+
+\begin{DoxyParams}{Parameters}
+{\em ss} & Secondary structure to be added \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_tree_decomposition_a91c0f9cf765260fe982c40fc17c29919}\label{class_tree_decomposition_a91c0f9cf765260fe982c40fc17c29919}} 
+\index{Tree\+Decomposition@{Tree\+Decomposition}!get\+Bags@{get\+Bags}}
+\index{get\+Bags@{get\+Bags}!Tree\+Decomposition@{Tree\+Decomposition}}
+\subsubsection{\texorpdfstring{get\+Bags()}{getBags()}}
+{\footnotesize\ttfamily vector$<$ \hyperlink{class_bag}{Bag} $\ast$ $>$ Tree\+Decomposition\+::get\+Bags (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+get\+Bags Returns the set of bags for this tree decomposition 
+
+\begin{DoxyReturn}{Returns}
+List of pointers to bags in this tree decomposition 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_tree_decomposition_abc2d6a2e7023ada23048b9a4832ef1b1}\label{class_tree_decomposition_abc2d6a2e7023ada23048b9a4832ef1b1}} 
+\index{Tree\+Decomposition@{Tree\+Decomposition}!load\+From\+File@{load\+From\+File}}
+\index{load\+From\+File@{load\+From\+File}!Tree\+Decomposition@{Tree\+Decomposition}}
+\subsubsection{\texorpdfstring{load\+From\+File()}{loadFromFile()}}
+{\footnotesize\ttfamily void Tree\+Decomposition\+::load\+From\+File (\begin{DoxyParamCaption}\item[{string}]{path }\end{DoxyParamCaption})}
+
+
+
+load\+From\+File Loads the content of a tree-\/decomposition from a file 
+
+
+\begin{DoxyParams}{Parameters}
+{\em path} & Path to a file describing a tree-\/decomposition \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_tree_decomposition_a328efa3fba52a273997eac5fe43083f3}\label{class_tree_decomposition_a328efa3fba52a273997eac5fe43083f3}} 
+\index{Tree\+Decomposition@{Tree\+Decomposition}!show@{show}}
+\index{show@{show}!Tree\+Decomposition@{Tree\+Decomposition}}
+\subsubsection{\texorpdfstring{show()}{show()}}
+{\footnotesize\ttfamily void Tree\+Decomposition\+::show (\begin{DoxyParamCaption}\item[{int}]{depth = {\ttfamily 0} }\end{DoxyParamCaption})}
+
+
+
+show Prints this tree decomposition recursively to standard error 
+
+
+\begin{DoxyParams}{Parameters}
+{\em depth} & Depth in tree decomposition of current bag \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_tree_decomposition_a204777cf6460de25bc733a2fff4fb38c}\label{class_tree_decomposition_a204777cf6460de25bc733a2fff4fb38c}} 
+\index{Tree\+Decomposition@{Tree\+Decomposition}!topological\+Sort@{topological\+Sort}}
+\index{topological\+Sort@{topological\+Sort}!Tree\+Decomposition@{Tree\+Decomposition}}
+\subsubsection{\texorpdfstring{topological\+Sort()}{topologicalSort()}}
+{\footnotesize\ttfamily vector$<$ \hyperlink{class_bag}{Bag} $\ast$ $>$ Tree\+Decomposition\+::topological\+Sort (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+topological\+Sort Builds a topological ordering of bags 
+
+\begin{DoxyReturn}{Returns}
+List of topologically-\/sorted (leaves before internal, children before parent) bags 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/Tree\+Decomposition.\+hpp\item 
+src/Tree\+Decomposition.\+cpp\end{DoxyCompactItemize}

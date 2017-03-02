@@ -1,0 +1,27 @@
+\hypertarget{_nucleotide_8hpp_source}{}\section{Nucleotide.\+hpp}
+\label{_nucleotide_8hpp_source}\index{src/\+Nucleotide.\+hpp@{src/\+Nucleotide.\+hpp}}
+
+\begin{DoxyCode}
+00001 \textcolor{preprocessor}{#ifndef \_NUCLEOTIDE\_H}
+00002 \textcolor{preprocessor}{#define \_NUCLEOTIDE\_H}
+00003 \textcolor{preprocessor}{#include <iostream>}
+00004 \textcolor{preprocessor}{#include <fstream>}
+00005 \textcolor{preprocessor}{#include <sstream>}
+00006 \textcolor{preprocessor}{#include <string>}
+00007 \textcolor{preprocessor}{#include <vector>}
+00008 
+00009 \textcolor{keyword}{using namespace }\hyperlink{namespacestd}{std};
+00010 
+00011 \textcolor{keyword}{typedef} \textcolor{keyword}{enum} \{N\_A, N\_U, N\_G, N\_C \} Nucleotide;
+00012 
+00013 \textcolor{comment}{/*}
+00014 \textcolor{comment}{ * Number of nucleotides}
+00015 \textcolor{comment}{ * Can be reduced (eg to 2) for debugging purpose}
+00016 \textcolor{comment}{ */}
+00017 \textcolor{preprocessor}{#define NUM\_NUCLEOTIDES 4}
+00018 
+00025 ostream& operator<<(ostream& o, Nucleotide n);
+00026 
+00033 ostream& operator<<(ostream& o, const vector<Nucleotide> & v);
+00034 \textcolor{preprocessor}{#endif}
+\end{DoxyCode}

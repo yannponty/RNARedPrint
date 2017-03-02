@@ -1,0 +1,335 @@
+\hypertarget{class_bag}{}\section{Bag Class Reference}
+\label{class_bag}\index{Bag@{Bag}}
+
+
+The \hyperlink{class_bag}{Bag} class represents a set of indices, ie positions in the sequences that must be jointly considered in the context of a given tree-\/decomposition.  
+
+
+
+
+{\ttfamily \#include $<$Tree\+Decomposition.\+hpp$>$}
+
+
+
+Collaboration diagram for Bag\+:\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=163pt]{class_bag__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\hyperlink{class_bag_aaa75e2de63f2f6199973471491cb9e13}{Bag} (int i)
+\begin{DoxyCompactList}\small\item\em \hyperlink{class_bag}{Bag} Constructs a bag with given identifier. \end{DoxyCompactList}\item 
+void \hyperlink{class_bag_a4f5fcc1b48aeb967653a0d5364254562}{add\+Index} (int i)
+\begin{DoxyCompactList}\small\item\em add\+Index Adds an index/position to this bag \end{DoxyCompactList}\item 
+vector$<$ int $>$ \hyperlink{class_bag_ad05a3a0069514372df097ec7d0cbe638}{get\+Indices} ()
+\begin{DoxyCompactList}\small\item\em get\+Indices Returns the set of indices/positions for this bag \end{DoxyCompactList}\item 
+void \hyperlink{class_bag_a8dfb102ead7412437b5f69b582784e44}{order\+Indices} ()
+\begin{DoxyCompactList}\small\item\em order\+Indices Reorders the indices such that the proper index is put at the last position in the index list. \end{DoxyCompactList}\item 
+void \hyperlink{class_bag_a36747193c7212f45b68552c3ea31fd70}{add\+Child} (\hyperlink{class_bag}{Bag} $\ast$b)
+\begin{DoxyCompactList}\small\item\em add\+Child Adds a child to the bag \end{DoxyCompactList}\item 
+void \hyperlink{class_bag_ade9c24ae6e76c2e0c27bc5b51929f64a}{replace\+Child} (\hyperlink{class_bag}{Bag} $\ast$prev, \hyperlink{class_bag}{Bag} $\ast$next)
+\begin{DoxyCompactList}\small\item\em replace\+Child Replaces any occurrence of a bag in the list of children bags with another bag \end{DoxyCompactList}\item 
+void \hyperlink{class_bag_a44101c6b26782dbe076d51e77f35ce81}{set\+Parent} (\hyperlink{class_bag}{Bag} $\ast$b)
+\begin{DoxyCompactList}\small\item\em set\+Parent Sets the parent of this bag to a given bag \end{DoxyCompactList}\item 
+int \hyperlink{class_bag_a03b31223756e1f3d7c040a72e53597d7}{num\+Proper} ()
+\begin{DoxyCompactList}\small\item\em num\+Proper Returns the number of proper indices for this bag \end{DoxyCompactList}\item 
+vector$<$ int $>$ \hyperlink{class_bag_a84860e8af1eed9547b7c20d77d29da7d}{get\+Proper\+Indices} ()
+\begin{DoxyCompactList}\small\item\em get\+Proper\+Indices Returns the list of proper indices for this bag \end{DoxyCompactList}\item 
+vector$<$ \hyperlink{class_bag}{Bag} $\ast$ $>$ \hyperlink{class_bag_a79094c130b1fd55e49afeeafa70c454b}{get\+Children} ()
+\begin{DoxyCompactList}\small\item\em get\+Children Returns the list of children bags for this bag \end{DoxyCompactList}\item 
+vector$<$ int $>$ \hyperlink{class_bag_a1a7660f8e31d6941fdec07c86e0fe3ac}{get\+Proper\+Parent\+Indices} ()
+\begin{DoxyCompactList}\small\item\em get\+Proper\+Parent\+Indices Returns the list of indices that are proper to the parent, ie indices that are in the parent list but not in this child list \end{DoxyCompactList}\item 
+int \hyperlink{class_bag_adb324085144f4ea2d1e5d0cfc008c591}{num\+Proper\+Parent\+Indices} ()
+\begin{DoxyCompactList}\small\item\em num\+Proper\+Parent\+Indices Returns the number of indices that are proper to the parent, ie indices that are in the parent list but not in this child list \end{DoxyCompactList}\item 
+const vector$<$ \hyperlink{class_base_pair}{Base\+Pair} $\ast$ $>$ \& \hyperlink{class_bag_aab67f05a274db8a02738f88c250f4cb1}{get\+Proper\+Base\+Pairs} ()
+\begin{DoxyCompactList}\small\item\em get\+Proper\+Base\+Pairs Returns the set of base pairs that are proper to this bag \end{DoxyCompactList}\item 
+int \hyperlink{class_bag_a4f6d2ad2b6a5e8f23520b2cda13f32ee}{width} ()
+\begin{DoxyCompactList}\small\item\em width Returns the width of this bag \end{DoxyCompactList}\item 
+int \hyperlink{class_bag_a7d77eb7e82f14c3266a979e08e0001e9}{get\+Id} ()
+\begin{DoxyCompactList}\small\item\em get\+Id Returns the unique identifier for this bag \end{DoxyCompactList}\item 
+void \hyperlink{class_bag_a4c761d7fd126ff850069bc2d584c511e}{add\+Base\+Pair} (\hyperlink{class_base_pair}{Base\+Pair} $\ast$bp)
+\begin{DoxyCompactList}\small\item\em add\+Base\+Pair Add a base pair to this bag \end{DoxyCompactList}\item 
+void \hyperlink{class_bag_a736149a37eb50ff5c3905a2a6c757240}{topological\+Sort} (vector$<$ \hyperlink{class_bag}{Bag} $\ast$$>$ \&result)
+\begin{DoxyCompactList}\small\item\em topological\+Sort Sorts and returns the bags in the tree initiated at this node \end{DoxyCompactList}\item 
+double \hyperlink{class_bag_aab06a56e08bd48cdce2e72d3b56d19f5}{score\+Bag} (vector$<$ Nucleotide $>$ assignment)
+\begin{DoxyCompactList}\small\item\em score\+Bag Associates an overall contribution of the proper nucleotide in the bag \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{class_bag_abdc39a5165388baacc11496be14e109a}\label{class_bag_abdc39a5165388baacc11496be14e109a}} 
+vector$<$ \hyperlink{class_bag}{Bag} $\ast$ $>$ {\bfseries children}
+\item 
+\mbox{\Hypertarget{class_bag_ae747ceb7a33dd7eb16357d20acb2bc79}\label{class_bag_ae747ceb7a33dd7eb16357d20acb2bc79}} 
+\hyperlink{class_bag}{Bag} $\ast$ {\bfseries parent}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+The \hyperlink{class_bag}{Bag} class represents a set of indices, ie positions in the sequences that must be jointly considered in the context of a given tree-\/decomposition. 
+
+\subsection{Constructor \& Destructor Documentation}
+\mbox{\Hypertarget{class_bag_aaa75e2de63f2f6199973471491cb9e13}\label{class_bag_aaa75e2de63f2f6199973471491cb9e13}} 
+\index{Bag@{Bag}!Bag@{Bag}}
+\index{Bag@{Bag}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{Bag()}{Bag()}}
+{\footnotesize\ttfamily Bag\+::\+Bag (\begin{DoxyParamCaption}\item[{int}]{i }\end{DoxyParamCaption})}
+
+
+
+\hyperlink{class_bag}{Bag} Constructs a bag with given identifier. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & Unique identifier for the \hyperlink{class_bag}{Bag} \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{class_bag_a4c761d7fd126ff850069bc2d584c511e}\label{class_bag_a4c761d7fd126ff850069bc2d584c511e}} 
+\index{Bag@{Bag}!add\+Base\+Pair@{add\+Base\+Pair}}
+\index{add\+Base\+Pair@{add\+Base\+Pair}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{add\+Base\+Pair()}{addBasePair()}}
+{\footnotesize\ttfamily void Bag\+::add\+Base\+Pair (\begin{DoxyParamCaption}\item[{\hyperlink{class_base_pair}{Base\+Pair} $\ast$}]{bp }\end{DoxyParamCaption})}
+
+
+
+add\+Base\+Pair Add a base pair to this bag 
+
+
+\begin{DoxyParams}{Parameters}
+{\em bp} & Pointer to base pair to be added \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_bag_a36747193c7212f45b68552c3ea31fd70}\label{class_bag_a36747193c7212f45b68552c3ea31fd70}} 
+\index{Bag@{Bag}!add\+Child@{add\+Child}}
+\index{add\+Child@{add\+Child}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{add\+Child()}{addChild()}}
+{\footnotesize\ttfamily void Bag\+::add\+Child (\begin{DoxyParamCaption}\item[{\hyperlink{class_bag}{Bag} $\ast$}]{b }\end{DoxyParamCaption})}
+
+
+
+add\+Child Adds a child to the bag 
+
+
+\begin{DoxyParams}{Parameters}
+{\em b} & Pointer to a bag to add as a child to this bag\\
+\hline
+\end{DoxyParams}
+Adds a child to the bag, considered as an internal node in the tree-\/decomposition. The parent of the child bag is set to the current bag. \mbox{\Hypertarget{class_bag_a4f5fcc1b48aeb967653a0d5364254562}\label{class_bag_a4f5fcc1b48aeb967653a0d5364254562}} 
+\index{Bag@{Bag}!add\+Index@{add\+Index}}
+\index{add\+Index@{add\+Index}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{add\+Index()}{addIndex()}}
+{\footnotesize\ttfamily void Bag\+::add\+Index (\begin{DoxyParamCaption}\item[{int}]{i }\end{DoxyParamCaption})}
+
+
+
+add\+Index Adds an index/position to this bag 
+
+
+\begin{DoxyParams}{Parameters}
+{\em i} & Index/position to add to the bag \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_bag_a79094c130b1fd55e49afeeafa70c454b}\label{class_bag_a79094c130b1fd55e49afeeafa70c454b}} 
+\index{Bag@{Bag}!get\+Children@{get\+Children}}
+\index{get\+Children@{get\+Children}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{get\+Children()}{getChildren()}}
+{\footnotesize\ttfamily vector$<$ \hyperlink{class_bag}{Bag} $\ast$ $>$ Bag\+::get\+Children (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+get\+Children Returns the list of children bags for this bag 
+
+\begin{DoxyReturn}{Returns}
+List of children bags for this bag 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_bag_a7d77eb7e82f14c3266a979e08e0001e9}\label{class_bag_a7d77eb7e82f14c3266a979e08e0001e9}} 
+\index{Bag@{Bag}!get\+Id@{get\+Id}}
+\index{get\+Id@{get\+Id}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{get\+Id()}{getId()}}
+{\footnotesize\ttfamily int Bag\+::get\+Id (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+get\+Id Returns the unique identifier for this bag 
+
+\begin{DoxyReturn}{Returns}
+Unique identifier for this bag 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_bag_ad05a3a0069514372df097ec7d0cbe638}\label{class_bag_ad05a3a0069514372df097ec7d0cbe638}} 
+\index{Bag@{Bag}!get\+Indices@{get\+Indices}}
+\index{get\+Indices@{get\+Indices}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{get\+Indices()}{getIndices()}}
+{\footnotesize\ttfamily vector$<$ int $>$ Bag\+::get\+Indices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+get\+Indices Returns the set of indices/positions for this bag 
+
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_bag_aab67f05a274db8a02738f88c250f4cb1}\label{class_bag_aab67f05a274db8a02738f88c250f4cb1}} 
+\index{Bag@{Bag}!get\+Proper\+Base\+Pairs@{get\+Proper\+Base\+Pairs}}
+\index{get\+Proper\+Base\+Pairs@{get\+Proper\+Base\+Pairs}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{get\+Proper\+Base\+Pairs()}{getProperBasePairs()}}
+{\footnotesize\ttfamily const vector$<$ \hyperlink{class_base_pair}{Base\+Pair} $\ast$ $>$ \& Bag\+::get\+Proper\+Base\+Pairs (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+get\+Proper\+Base\+Pairs Returns the set of base pairs that are proper to this bag 
+
+\begin{DoxyReturn}{Returns}
+Set of base pairs that are proper to this bag
+\end{DoxyReturn}
+The proper base pairs for a bag are the base pairs such that\+: a) Both 5\textquotesingle{} and 3\textquotesingle{} end of the base pair are in the list of indices; b) Either the 5\textquotesingle{} or the 3\textquotesingle{} end of the base pair is proper to the current bag. Note that this definition uniquely defines to which bag a base pair must be attributed in a given tree decomposition (assuming that the base-\/pair is materialized by some edge in the graph used for the TD). \mbox{\Hypertarget{class_bag_a84860e8af1eed9547b7c20d77d29da7d}\label{class_bag_a84860e8af1eed9547b7c20d77d29da7d}} 
+\index{Bag@{Bag}!get\+Proper\+Indices@{get\+Proper\+Indices}}
+\index{get\+Proper\+Indices@{get\+Proper\+Indices}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{get\+Proper\+Indices()}{getProperIndices()}}
+{\footnotesize\ttfamily vector$<$ int $>$ Bag\+::get\+Proper\+Indices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+get\+Proper\+Indices Returns the list of proper indices for this bag 
+
+\begin{DoxyReturn}{Returns}
+List of proper indices for this bag, ie indices that are in this bag but not in the parent bag 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_bag_a1a7660f8e31d6941fdec07c86e0fe3ac}\label{class_bag_a1a7660f8e31d6941fdec07c86e0fe3ac}} 
+\index{Bag@{Bag}!get\+Proper\+Parent\+Indices@{get\+Proper\+Parent\+Indices}}
+\index{get\+Proper\+Parent\+Indices@{get\+Proper\+Parent\+Indices}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{get\+Proper\+Parent\+Indices()}{getProperParentIndices()}}
+{\footnotesize\ttfamily vector$<$ int $>$ Bag\+::get\+Proper\+Parent\+Indices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+get\+Proper\+Parent\+Indices Returns the list of indices that are proper to the parent, ie indices that are in the parent list but not in this child list 
+
+\begin{DoxyReturn}{Returns}
+list of indices that are proper to the parent, ie indices that are in the parent list but not in this child list 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_bag_a03b31223756e1f3d7c040a72e53597d7}\label{class_bag_a03b31223756e1f3d7c040a72e53597d7}} 
+\index{Bag@{Bag}!num\+Proper@{num\+Proper}}
+\index{num\+Proper@{num\+Proper}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{num\+Proper()}{numProper()}}
+{\footnotesize\ttfamily int Bag\+::num\+Proper (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+num\+Proper Returns the number of proper indices for this bag 
+
+\begin{DoxyReturn}{Returns}
+Number of proper indices, ie indices that are in this bag but not in the parent bag 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_bag_adb324085144f4ea2d1e5d0cfc008c591}\label{class_bag_adb324085144f4ea2d1e5d0cfc008c591}} 
+\index{Bag@{Bag}!num\+Proper\+Parent\+Indices@{num\+Proper\+Parent\+Indices}}
+\index{num\+Proper\+Parent\+Indices@{num\+Proper\+Parent\+Indices}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{num\+Proper\+Parent\+Indices()}{numProperParentIndices()}}
+{\footnotesize\ttfamily int Bag\+::num\+Proper\+Parent\+Indices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+num\+Proper\+Parent\+Indices Returns the number of indices that are proper to the parent, ie indices that are in the parent list but not in this child list 
+
+\begin{DoxyReturn}{Returns}
+Number of indices that are proper to the parent, ie indices that are in the parent list but not in this child list 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_bag_a8dfb102ead7412437b5f69b582784e44}\label{class_bag_a8dfb102ead7412437b5f69b582784e44}} 
+\index{Bag@{Bag}!order\+Indices@{order\+Indices}}
+\index{order\+Indices@{order\+Indices}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{order\+Indices()}{orderIndices()}}
+{\footnotesize\ttfamily void Bag\+::order\+Indices (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+order\+Indices Reorders the indices such that the proper index is put at the last position in the index list. 
+
+Checks that there is exactly one proper index per bag. A proper index is an index which is found in the child bag, but not in the parent bag. Puts it at the end of the index/position list for conveniency of future accesses. \mbox{\Hypertarget{class_bag_ade9c24ae6e76c2e0c27bc5b51929f64a}\label{class_bag_ade9c24ae6e76c2e0c27bc5b51929f64a}} 
+\index{Bag@{Bag}!replace\+Child@{replace\+Child}}
+\index{replace\+Child@{replace\+Child}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{replace\+Child()}{replaceChild()}}
+{\footnotesize\ttfamily void Bag\+::replace\+Child (\begin{DoxyParamCaption}\item[{\hyperlink{class_bag}{Bag} $\ast$}]{prev,  }\item[{\hyperlink{class_bag}{Bag} $\ast$}]{next }\end{DoxyParamCaption})}
+
+
+
+replace\+Child Replaces any occurrence of a bag in the list of children bags with another bag 
+
+
+\begin{DoxyParams}{Parameters}
+{\em prev} & Pointer to current child bag to be replaced \\
+\hline
+{\em next} & Pointer to replacement child bag \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_bag_aab06a56e08bd48cdce2e72d3b56d19f5}\label{class_bag_aab06a56e08bd48cdce2e72d3b56d19f5}} 
+\index{Bag@{Bag}!score\+Bag@{score\+Bag}}
+\index{score\+Bag@{score\+Bag}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{score\+Bag()}{scoreBag()}}
+{\footnotesize\ttfamily double Bag\+::score\+Bag (\begin{DoxyParamCaption}\item[{vector$<$ Nucleotide $>$}]{assignment }\end{DoxyParamCaption})}
+
+
+
+score\+Bag Associates an overall contribution of the proper nucleotide in the bag 
+
+
+\begin{DoxyParams}{Parameters}
+{\em assignments} & Nucleotides assigned to each positions of the bag \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The overall free-\/energy contribution of the (proper indices in) the bag 
+\end{DoxyReturn}
+\mbox{\Hypertarget{class_bag_a44101c6b26782dbe076d51e77f35ce81}\label{class_bag_a44101c6b26782dbe076d51e77f35ce81}} 
+\index{Bag@{Bag}!set\+Parent@{set\+Parent}}
+\index{set\+Parent@{set\+Parent}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{set\+Parent()}{setParent()}}
+{\footnotesize\ttfamily void Bag\+::set\+Parent (\begin{DoxyParamCaption}\item[{\hyperlink{class_bag}{Bag} $\ast$}]{b }\end{DoxyParamCaption})}
+
+
+
+set\+Parent Sets the parent of this bag to a given bag 
+
+
+\begin{DoxyParams}{Parameters}
+{\em b} & Pointer to bag, set as parent to this bag \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_bag_a736149a37eb50ff5c3905a2a6c757240}\label{class_bag_a736149a37eb50ff5c3905a2a6c757240}} 
+\index{Bag@{Bag}!topological\+Sort@{topological\+Sort}}
+\index{topological\+Sort@{topological\+Sort}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{topological\+Sort()}{topologicalSort()}}
+{\footnotesize\ttfamily void Bag\+::topological\+Sort (\begin{DoxyParamCaption}\item[{vector$<$ \hyperlink{class_bag}{Bag} $\ast$$>$ \&}]{result }\end{DoxyParamCaption})}
+
+
+
+topological\+Sort Sorts and returns the bags in the tree initiated at this node 
+
+
+\begin{DoxyParams}{Parameters}
+{\em result} & List of bags such that the leaves can be found first and, more generally, children can be found before the parents. \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{class_bag_a4f6d2ad2b6a5e8f23520b2cda13f32ee}\label{class_bag_a4f6d2ad2b6a5e8f23520b2cda13f32ee}} 
+\index{Bag@{Bag}!width@{width}}
+\index{width@{width}!Bag@{Bag}}
+\subsubsection{\texorpdfstring{width()}{width()}}
+{\footnotesize\ttfamily int Bag\+::width (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+width Returns the width of this bag 
+
+\begin{DoxyReturn}{Returns}
+Width, ie number of indices, of this bag 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+src/Tree\+Decomposition.\+hpp\item 
+src/Tree\+Decomposition.\+cpp\end{DoxyCompactItemize}

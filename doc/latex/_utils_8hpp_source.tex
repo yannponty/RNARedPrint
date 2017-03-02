@@ -1,0 +1,46 @@
+\hypertarget{_utils_8hpp_source}{}\section{Utils.\+hpp}
+\label{_utils_8hpp_source}\index{src/\+Utils.\+hpp@{src/\+Utils.\+hpp}}
+
+\begin{DoxyCode}
+00001 \textcolor{preprocessor}{#ifndef \_UTILS\_H}
+00002 \textcolor{preprocessor}{#define \_UTILS\_H}
+00003 
+00004 \textcolor{preprocessor}{#include <string>}
+00005 \textcolor{preprocessor}{#include <vector>}
+00006 \textcolor{preprocessor}{#include <iostream>}
+00007 \textcolor{preprocessor}{#include <algorithm>}
+00008 
+00009 
+00010 \textcolor{keyword}{using namespace }\hyperlink{namespacestd}{std};
+00011 
+00012 \textcolor{preprocessor}{#define DEBUG 0}
+00013 
+00014 \textcolor{comment}{/***************** Strings Utils *****************/}
+00020 \textcolor{keyword}{static} \textcolor{keyword}{inline} std::string &ltrim(std::string &s) \{
+00021     s.erase(s.begin(), std::find\_if(s.begin(), s.end(),
+00022             std::not1(std::ptr\_fun<int, int>(std::isspace))));
+00023     \textcolor{keywordflow}{return} s;
+00024 \}
+00025 
+00031 \textcolor{keyword}{static} \textcolor{keyword}{inline} std::string &rtrim(std::string &s) \{
+00032     s.erase(std::find\_if(s.rbegin(), s.rend(),
+00033             std::not1(std::ptr\_fun<int, int>(std::isspace))).base(), s.end());
+00034     \textcolor{keywordflow}{return} s;
+00035 \}
+00036 
+00042 \textcolor{keyword}{static} \textcolor{keyword}{inline} std::string &trim(std::string &s) \{
+00043     \textcolor{keywordflow}{return} ltrim(rtrim(s));
+00044 \}
+00045 
+00052 vector<string> split(\textcolor{keyword}{const} std::string &s, \textcolor{keywordtype}{char} delim);
+00053 
+00060 \textcolor{keywordtype}{string} pad(\textcolor{keyword}{const} \textcolor{keywordtype}{char} * c, \textcolor{keywordtype}{int} a);
+00061 
+00068 ostream& operator<<(ostream& o, const vector<int> & v);
+00069 
+00070 \textcolor{comment}{/**************************************************/}
+00071 
+00078 vector<int> setSubstract(vector<int> indices,vector<int> parent);
+00079 
+00080 \textcolor{preprocessor}{#endif }
+\end{DoxyCode}
