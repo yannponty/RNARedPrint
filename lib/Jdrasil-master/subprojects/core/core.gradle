@@ -1,0 +1,128 @@
+/*
+ * Copyright (c) 2016-present, Max Bannach, Sebastian Berndt, Thorsten Ehlers
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+ * associated documentation files (the "Software"), to deal in the Software without restriction,
+ * including without limitation the rights to use, copy, modify, merge, publish, distribute,
+ * sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or
+ * substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
+ * NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+ * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
+ * OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+apply plugin: 'java'
+
+buildDir = new File(rootProject.projectDir, "build/")
+ext {
+  jarDir = new File("${buildDir}/jars")
+  mainClass = "jdrasil.Exact"
+}
+
+/* addapt jar configuration */
+jar {
+  manifest {
+    // make it executable
+    attributes 'Main-Class': 'jdrasil.Exact'
+  }
+}
+
+/* Change name and place of the compiled jar. */
+jar.doFirst {
+  archiveName = "Jdrasil.jar"
+  destinationDir = jarDir
+}
+
+/* Enable mathjax in JavaDoc */
+javadoc.doFirst {
+  options.header = ('<script type="text/javascript" '
+	      + 'src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">'
+	      + '</script>'
+	     )
+}
+
+/* Start Scripts for tw-exact */
+task exact(type: CreateStartScripts) {
+  outputDir = file("${rootDir}")
+  mainClassName = 'jdrasil.Exact'
+  applicationName = 'tw-exact'
+  classpath = files('build/jar/Jdrasil.jar')
+  defaultJvmOpts = [ '-Djava.library.path=build/upgrades/' ]
+
+  
+  doLast {   
+    // update class path as the script is used with a fresh build
+    unixScript.text = unixScript.text.replace('$APP_HOME/lib', '$APP_HOME/build/jars/')
+    unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME', 'CLASSPATH=build/upgrades/org.sat4j.core.jar:$APP_HOME')
+    unixScript.text = unixScript.text.replace('exec "$JAVACMD" "$@"', 'cd "$(dirname "$0")"\nexec "$JAVACMD" "$@"')
+
+    
+    windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib', '%APP_HOME%\\config\\;%APP_HOME%\\build\\jars')
+
+    // update APP_HOME (there is no bin directory)
+    unixScript.text = unixScript.text.replace('cd "`dirname \\"$PRG\\"`/.." >/dev/null', 'cd "`dirname \\"$PRG\\"`/" >/dev/null')    
+  }
+}
+
+/* Start Scripts for tw-heuristic */
+task heuristic(type: CreateStartScripts) {
+  outputDir = file("${rootDir}")
+  mainClassName = 'jdrasil.Heuristic'
+  applicationName = 'tw-heuristic'
+  classpath = files('build/jar/Jdrasil.jar')
+  defaultJvmOpts = [ '-Djava.library.path=build/upgrades/' ]
+  
+  doLast {   
+    // update class path as the script is used with a fresh build
+    unixScript.text = unixScript.text.replace('$APP_HOME/lib', '$APP_HOME/build/jars/')
+    unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME', 'CLASSPATH=build/upgrades/org.sat4j.core.jar:$APP_HOME')
+    unixScript.text = unixScript.text.replace('exec "$JAVACMD" "$@"', 'cd "$(dirname "$0")"\nexec "$JAVACMD" "$@"')
+
+    
+    windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib', '%APP_HOME%\\config\\;%APP_HOME%\\build\\jars')
+
+    // update APP_HOME (there is no bin directory)
+    unixScript.text = unixScript.text.replace('cd "`dirname \\"$PRG\\"`/.." >/dev/null', 'cd "`dirname \\"$PRG\\"`/" >/dev/null')    
+  }
+}
+
+/* Start Scripts for tw-approximation */
+task approximation(type: CreateStartScripts) {
+  outputDir = file("${rootDir}")
+  mainClassName = 'jdrasil.Approximation'
+  applicationName = 'tw-approximation'
+  classpath = files('build/jar/Jdrasil.jar')
+  defaultJvmOpts = [ '-Djava.library.path=build/upgrades/' ]
+  
+  doLast {   
+    // update class path as the script is used with a fresh build
+    unixScript.text = unixScript.text.replace('$APP_HOME/lib', '$APP_HOME/build/jars/')
+    unixScript.text = unixScript.text.replace('CLASSPATH=$APP_HOME', 'CLASSPATH=build/upgrades/org.sat4j.core.jar:$APP_HOME')
+    unixScript.text = unixScript.text.replace('exec "$JAVACMD" "$@"', 'cd "$(dirname "$0")"\nexec "$JAVACMD" "$@"')
+
+    
+    windowsScript.text = windowsScript.text.replace('%APP_HOME%\\lib', '%APP_HOME%\\config\\;%APP_HOME%\\build\\jars')
+
+    // update APP_HOME (there is no bin directory)
+    unixScript.text = unixScript.text.replace('cd "`dirname \\"$PRG\\"`/.." >/dev/null', 'cd "`dirname \\"$PRG\\"`/" >/dev/null')    
+  }
+}
+
+/* Update clean to remove pace executables */
+clean.doLast {
+  FileCollection scripts = files(["${rootDir}/tw-exact",
+				  "${rootDir}/tw-exact.bat",
+				  "${rootDir}/tw-heuristic",
+				  "${rootDir}/tw-heuristic.bat",
+				  "${rootDir}/tw-approximation",
+				  "${rootDir}/tw-approximation.bat"])
+  scripts.each { file ->
+    if (file.exists()) file.delete()
+  }
+}

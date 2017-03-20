@@ -1,0 +1,99 @@
+# Build matrix / environment variable are explained on:
+# http://about.travis-ci.org/docs/user/build-configuration/
+# This file can be validated on:
+# http://lint.travis-ci.org/
+
+install:
+- export DEPENDENCIES_DIRECTORY="${TRAVIS_BUILD_DIR}/dependencies"
+- mkdir ${DEPENDENCIES_DIRECTORY} && cd ${DEPENDENCIES_DIRECTORY}
+# /usr/bin/gcc is 4.6 always, but gcc-X.Y is available.
+- if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
+# /usr/bin/clang is 3.4, lets override with modern one.
+- if [ "$CXX" = "clang++" ] && [ "$TRAVIS_OS_NAME" = "linux" ]; then export CXX="clang++-3.7" CC="clang-3.7"; fi
+- |
+  if [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+    CMAKE_URL="http://www.cmake.org/files/v3.2/cmake-3.2.0-Linux-x86_64.tar.gz"
+    mkdir cmake && travis_retry wget --no-check-certificate --quiet -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
+    export PATH=${DEPENDENCIES_DIRECTORY}/cmake/bin:${PATH}
+  else
+    brew update && brew unlink cmake && brew install cmake
+  fi
+- |
+  if [[ "$RUN_COVERAGE_TEST" == "1" ]]; then
+    mkdir -p "${DEPENDENCIES_DIRECTORY}/gcov/bin"
+    export PATH=${DEPENDENCIES_DIRECTORY}/gcov/bin:${PATH}
+    ln -fs /usr/bin/gcov-4.9 "${DEPENDENCIES_DIRECTORY}/gcov/bin/gcov" && gcov --version
+    LCOV_URL="http://ftp.de.debian.org/debian/pool/main/l/lcov/lcov_1.13.orig.tar.gz"
+    mkdir lcov && travis_retry wget --no-check-certificate --quiet -O - ${LCOV_URL} | tar --strip-components=1 -xz -C lcov
+    export PATH=${DEPENDENCIES_DIRECTORY}/lcov/bin:${PATH}
+    lcov --version
+    gem install coveralls-lcov
+  fi
+- cd ${TRAVIS_BUILD_DIR}
+- echo ${PATH}
+- echo ${CXX}
+- ${CXX} --version
+- ${CXX} -v
+
+addons:
+  apt:
+    # List of whitelisted in travis packages for ubuntu-precise can be found here:
+    #   https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
+    # List of whitelisted in travis apt-sources:
+    #   https://github.com/travis-ci/apt-source-whitelist/blob/master/ubuntu.json
+    sources:
+    - ubuntu-toolchain-r-test
+    - llvm-toolchain-precise-3.7
+    packages:
+    - gcc-4.9
+    - g++-4.9
+    - clang-3.7
+    - valgrind
+    
+os:
+  - linux
+# - osx
+
+language: cpp
+
+compiler:
+  - gcc
+  - clang
+
+before_script:
+  - chmod +x travis.sh
+
+script: ./travis.sh
+
+after_success:
+  - |
+    if [[ "$RUN_COVERAGE_TEST" == "1" ]]; then
+      cd ${TRAVIS_BUILD_DIR}
+      lcov --directory "build" --base-directory . --capture --rc lcov_branch_coverage=1 --output-file coverage.info
+      lcov --base-directory . --remove coverage.info 'htd/test/*' '/usr/*' --rc lcov_branch_coverage=1 --output-file coverage.info
+      lcov --rc lcov_branch_coverage=1 --list coverage.info
+      coveralls-lcov --repo-token ${COVERALLS_REPO_TOKEN} coverage.info
+    fi
+
+after_failure:
+  - |
+    if [ -f "${TRAVIS_BUILD_DIR}/build/${HTD_TARGET}/Testing/Temporary/LastTest.log" ]; then
+      cat "${TRAVIS_BUILD_DIR}/build/${HTD_TARGET}/Testing/Temporary/LastTest.log"
+    fi
+
+env:
+  - HTD_TARGET=htd BUILD_SHARED_LIBS=True CMAKE_BUILD_TYPE=Debug HTD_USE_EXTENDED_IDENTIFIERS=True
+  - HTD_TARGET=htd BUILD_SHARED_LIBS=True CMAKE_BUILD_TYPE=Debug HTD_USE_EXTENDED_IDENTIFIERS=False
+  - HTD_TARGET=htd BUILD_SHARED_LIBS=False CMAKE_BUILD_TYPE=Debug HTD_USE_EXTENDED_IDENTIFIERS=True
+  - HTD_TARGET=htd BUILD_SHARED_LIBS=False CMAKE_BUILD_TYPE=Debug HTD_USE_EXTENDED_IDENTIFIERS=False
+    
+matrix:
+  include:
+    - os: linux
+      compiler: gcc
+      env: HTD_TARGET=htd BUILD_SHARED_LIBS=True CMAKE_BUILD_TYPE=Debug HTD_USE_EXTENDED_IDENTIFIERS=False RUN_COVERAGE_TEST=1
+
+notifications:
+  email: false
+
+sudo: false

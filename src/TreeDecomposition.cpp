@@ -91,7 +91,7 @@ int Bag::getId()
 {  return id;  }
 
 void Bag::addBasePair(BasePair * bp)
-{  basepairs.push_back(bp); }
+{ basepairs.push_back(bp); }
 
 void Bag::topologicalSort(vector<Bag *> & result){
   for(unsigned int i=0;i<children.size();i++)
@@ -301,14 +301,46 @@ vector<Bag*> TreeDecomposition::topologicalSort(){
 
 void TreeDecomposition::loadFromFile(string path){
   vector<vector<int> > edges;
-  
   // Parse tree-decomposition into temporary edge structure
-  std::string line;
-  std::ifstream infile(path.c_str());
-  if (!infile.good()){
-    cerr << "Error: Missing Tree Dec. file" <<endl;
-    return ;
+  string line;
+  ifstream infile(path.c_str());
+  if(!infile.good()){
+  	cerr << "Error: Missing Tree Dec. file" <<endl;
+  	return ;
   }
+  tw = 0;
+  while(getline(infile, line)){
+  	if(line[0] == 'c') continue; // comment line
+  	if(line[0] == 's') continue; 
+  	// solution line s which contains the string td, followed by number of bags, the width, the vertices of the original input graph
+  	
+  	vector<string> data = split(trim(line),' ');
+  	
+  	if(line[0] == 'b'){ // bag line
+  		int dataSize = data.size();
+  		if (dataSize-3 > tw) tw = dataSize-3;
+  		int bagIndex;
+  		istringstream(data[1]) >> bagIndex;
+  		Bag * b = new Bag(bagIndex-1);  // bag index begin at 0;
+  		for(unsigned i=2; i<dataSize; i++){
+  			int index;
+  			istringstream(data[i]) >> index;
+  			b->addIndex(index-1);         // the index in the bag also begins at 0;
+  		}
+  		bags.push_back(b);
+  		edges.push_back(vector<int>());
+  	} else {  // all the remaining non-comment lines indicate an edge in the tree decomposition
+  		int ib1, ib2;
+  		string sb1 = data[0];
+  		istringstream(sb1) >> ib1;
+  		string sb2 = data[1];
+  		istringstream(sb2) >> ib2;
+  		edges[ib1-1].push_back(ib2-1);
+  		edges[ib2-1].push_back(ib1-1);
+  	}
+  }
+
+  /*
   while (std::getline(infile, line))
   {
     vector<string> data = split(trim(line),' ');  
@@ -342,6 +374,7 @@ void TreeDecomposition::loadFromFile(string path){
       }
     }  
   }
+  */
   
   // Find lowest degree bag => root
   bool seen[bags.size()];
@@ -393,6 +426,7 @@ void TreeDecomposition::loadFromFile(string path){
   }
   while(minB!=-1);
   // Replace bags with >1 proper indices with sequences
+  
   normalize();      
 }
 
@@ -440,17 +474,152 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
     string tmpfilein = "./tmp.dgf";
     string tmpfileout = "./tmp.td";
 
+		TreeDecomposition * result = new TreeDecomposition();
+		
+		// library LIBTW
     TreeDecomposition * td = new TreeDecomposition();
-    saveAsDGF(structures,tmpfilein);
+    saveAsDGF(structures,tmpfilein,1);
+
 
     // TODO: To be replaced by a modular system for calling TD tools (or, even better a call to an external C++ API )
-    string cmd = string("java -cp \"../lib/libtw/libtw.jar;../lib/libtw/\" TD ")+tmpfilein+string(" ")+tmpfileout+" > out 2> outerr";
-    system(cmd.c_str());
-    new TreeDecomposition();
-
+    string cmd1 = string("../lib/treewidth-java");
+    string cmd2 = string("java nl.uu.cs.treewidth.TreeDecomposer 1 ../../bin/") + tmpfilein + string(" ../../bin/") + tmpfileout + string(" ../../bin/tmp.dot");
+    string cmd3 = string("../../bin/");
+    chdir(cmd1.c_str());
+    system(cmd2.c_str());
+    chdir(cmd3.c_str());		
+    //new TreeDecomposition();
+    transFileFormat(tmpfileout); 
     td->loadFromFile(tmpfileout);
+    result->copyObj(td);
     remove(tmpfilein.c_str());
     remove(tmpfileout.c_str());
+		cout << "LIBTW treewidth: " << result->tw << endl;
+		td->reset();
+		
+		
+		//by Fox-Epstein (Brown University)
+		saveAsDGF(structures,tmpfilein,2);
+		cmd1 = "gtimeout --signal=SIGTERM 5s ../lib/2016-pace-challenge-master/tw-heuristic " + tmpfilein + string(" > ") + tmpfileout;
+		system(cmd1.c_str());
+		td->loadFromFile(tmpfileout);
+		cout << "Fox-Epstein --- treewidth: " << td->tw << endl;
+    remove(tmpfileout.c_str()); 
+    if(td->tw < result->tw){
+    	result->reset();
+    	result->copyObj(td);
+    }
+    td->reset();
+    
+    
+		// by Strasser (Karlsruhe Institute of Technology)
+		cmd1 = "gtimeout --signal=SIGTERM 5s ../lib/flow-cutter-pace16-master/flow_cutter_pace16 " + tmpfilein + string(" > ") + tmpfileout;
+		system(cmd1.c_str());
+		td->loadFromFile(tmpfileout);
+		cout << "Strasser --- treewidth: " << td->tw << endl;
+		remove(tmpfileout.c_str());
+		if(td->tw < result->tw){
+    	result->reset();
+    	result->copyObj(td);
+    }
+    td->reset();
+    
+    // by Abseher, Musliu, Woltran (TU Wien)
+    
+    
+    
+    // by Gaspers, Gudmundsson, Jones, Mestre, Rümmele  (UNSW and University of Sidney)
+    cmd1 = "../lib/pace2016-master/";
+    cmd2 = "./tw-heuristic < ../../bin/" + tmpfilein + string(" > ") + "../../bin/" + tmpfileout;
+    cmd3 = "../../bin/";
+    chdir(cmd1.c_str());
+    system(cmd2.c_str());
+    chdir(cmd3.c_str());
+    td->loadFromFile(tmpfileout);
+    cout << "Gaspers, Gudmundsson, Jones, Mestre, Rummele --- treewidth: " << td->tw << endl;
+		remove(tmpfileout.c_str());
+		if(td->tw < result->tw){
+    	result->reset();
+    	result->copyObj(td);
+    }
+    td->reset();
+    
+    
+    // by Bannach, Berndt, Ehlers (Luebeck University)
+    cmd1 = "../lib/Jdrasil-master/tw-heuristic < " + tmpfilein + string(" > ") + tmpfileout;
+    system(cmd1.c_str());
+    td->loadFromFile(tmpfileout);
+    cout << "Bannach, Berndt, Ehlers --- treewidth: " << td->tw << endl;
+    remove(tmpfileout.c_str());
+   	if(td->tw < result->tw){
+    	result->reset();
+    	result->copyObj(td);
+    }
+    td->reset();
+    
+    // by Joglekar, Kamble, Pandian (IIT Madras)
+    cmd1 = "gtimeout --signal=SIGTERM 10s ../lib/pacechallenge-master/tw-heuristic < " + tmpfilein + string(" > ") + tmpfileout;
+    system(cmd1.c_str());
+    td->loadFromFile(tmpfileout);
+    cout << "Joglekar, Kamble, Pandian --- treewidth: " << td->tw << endl;
+    remove(tmpfileout.c_str());
+   	if(td->tw < result->tw){
+    	result->reset();
+    	result->copyObj(td);
+    }
+    td->reset();
+    
+    return result;
+}
 
-    return td;
+
+void TDLibFactory::transFileFormat(string path)
+{
+	string result;
+	ifstream input(path.c_str());
+	if(input.is_open()){
+		string line;
+		while(getline(input, line)){
+			
+			std::regex node("[ \\t]*bag(\\d+) *\\[label=\" *(.+?) *\"\\]$");
+			std::smatch fnode;
+			std::regex_search(line, fnode, node);
+		
+			if(fnode.size() > 2){
+				result.append("b ");
+				result.append(fnode[1]);
+				result.push_back(' ');
+				string bag_content = fnode[2];
+				string token;
+				vector<string> data = split(trim(bag_content),' '); 
+				for(int i=0; i<data.size(); i++){
+					string tmp = data[i];
+					if(tmp[0] == '\\'){
+						result.append(tmp.substr(2,tmp.size()-2));
+						result.push_back(' ');
+					} else {
+						result.append(tmp);
+						result.push_back(' ');
+					}
+				}
+				result.push_back('\n');
+			} else {
+				std::regex arc("[ \\t]*bag(\\d+) -- bag(\\d+)$");
+				std::smatch farc;
+				std::regex_search(line, farc, arc);
+				if(farc.size() > 2){
+					string bag1 = farc[1];
+					string bag2 = farc[2];
+					result = result + bag1 + " " + bag2 + " \n";
+				}
+			}
+		}
+	}
+	input.close();
+
+	ofstream output(path.c_str());
+	output << "s td " << endl;
+	output << result;
+	output.close();
+
 }

@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <stack>
+#include <unistd.h>
+#include <regex>
 
 #include "Utils.hpp"
 #include "RNAStructure.hpp"
@@ -193,6 +195,7 @@ class TreeDecomposition{
   public:
     vector<Bag*> bags;  
     vector<int> roots;
+    int tw; // treewidth
     /**
      * @brief TreeDecomposition Constructs an empty tree decomposition
      */
@@ -227,6 +230,9 @@ class TreeDecomposition{
      * @param depth Depth in tree decomposition of current bag
      */
     void show(int depth=0);
+    
+    void reset(){bags.clear(); roots.clear(); tw=0;}
+    void copyObj(TreeDecomposition * td){this->bags=td->bags; this->roots=td->roots; this->tw=td->tw;}
 };
 
 /**
@@ -243,8 +249,11 @@ class TreeDecompositionFactory{
  * TDLib.jar Java implementation of the greedy fill-in heuristics
  */
 class TDLibFactory : public TreeDecompositionFactory{
+  private:
+  	void transFileFormat(string path);
   public:
     TreeDecomposition* makeTD(vector<SecondaryStructure*>& v);
+    
 };
 
 #endif

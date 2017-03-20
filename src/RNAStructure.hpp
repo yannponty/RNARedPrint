@@ -110,6 +110,9 @@ class SecondaryStructure{
      * @brief getLength Returns the number of nucleotides involved in the secondary structure
      * @return Number of nucleotides involved in the secondary structure
      */
+
+    vector<vector<BasePair*> > getLabelledDBPs();
+
     int getLength();
 
     /**
@@ -126,6 +129,6 @@ class SecondaryStructure{
  * @param SSs Sequence of secondary structures
  * @param path Path to a file where the DGF-formatted graph is written
  */
-void saveAsDGF(vector<SecondaryStructure*> SSs, string path);
+void saveAsDGF(vector<SecondaryStructure*> SSs, string path, int type);
 
 #endif

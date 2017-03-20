@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+make DEBUG=0 VALIDATE_TD=1
+while read line; do
+  time=`date +%s`
+  echo ""
+  echo "bin/tw-heuristic -s $time < $line"
+  bin/tw-heuristic -s $time < $line > /tmp/tree-decomp &
+  pid=$!
+  sleep 3
+  echo "Sending SIGTERM"
+  kill -SIGTERM $pid
+  sleep 1
+  if ps -p $pid > /dev/null ; then
+    echo "Didn't finish in time"
+    echo "Sending SIGKILL"
+    kill -SIGKILL $pid
+  fi
+done < data/directory

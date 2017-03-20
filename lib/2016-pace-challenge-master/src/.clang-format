@@ -1,0 +1,10 @@
+BasedOnStyle: Google
+IndentWidth: 2
+---
+Language: Cpp
+DerivePointerAlignment: false
+PointerAlignment: Right
+AlwaysBreakTemplateDeclarations: true
+IndentCaseLabels: true
+AllowShortLoopsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false

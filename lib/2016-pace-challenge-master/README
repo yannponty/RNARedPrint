@@ -1,0 +1,11 @@
+This is a submission for Track A (Tree Width) of the the 2016 PACE challenge:
+
+  https://pacechallenge.wordpress.com/track-a-treewidth/
+
+This project implements the Minimum Degree and Minimum Fill-In heuristic for
+finding tree decompositions. To build, run:
+
+  $ make
+
+This produces the executable bin/tw-heuristic that operates as specified by the
+challenge website.
