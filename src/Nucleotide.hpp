@@ -8,13 +8,28 @@
 
 using namespace std;
 
-typedef enum {N_A, N_U, N_G, N_C } Nucleotide;
+typedef enum {N_A, N_U, N_G, N_C} Nucleotide;
 
 /*
  * Number of nucleotides
  * Can be reduced (eg to 2) for debugging purpose
  */
 #define NUM_NUCLEOTIDES 4
+
+/**
+ * Converts a nucleotide to its representation as a character
+ * @param n Nucleotide to be converted
+ * @return Character representation ('A', 'C', 'G', 'U' & 'X' for unknown)
+ */
+char nt2char(Nucleotide n);
+
+
+/**
+ * Converts a character to its associated nucleotide
+ * @param n Character to be converted
+ * @return Associated nucleotide
+ */
+Nucleotide char2nt(char n);
 
 /**
  * @brief operator << Prints a nucleotide

@@ -23,6 +23,7 @@ class Bag{
     vector<int> indices;
     vector<BasePair*> basepairs;
     vector<Loop*> loops;
+    vector<vector<int>> indices2loops;
     int id;
 
   public:
@@ -112,16 +113,16 @@ class Bag{
     int numProperParentIndices();
 
     /**
-     * @brief getProperBasePairs Returns the set of base pairs that are proper to this bag
-     * @return Set of base pairs that are proper to this bag
+     * @brief getLoops Returns the set of loops that are proper to this bag
+     * @return Set of loops that are proper to this bag
      *
-     * The proper base pairs for a bag are the base pairs such that: a) Both 5' and 3' end of
-     * the base pair are in the list of indices; b) Either the 5' or the 3' end of the base pair
-     * is proper to the current bag. Note that this definition uniquely defines to which bag a
-     * base pair must be attributed in a given tree decomposition (assuming that the base-pair is
-     * materialized by some edge in the graph used for the TD).
+     * The proper loops for a bag are the base pairs such that: a) All indices of the loop
+     * are in the list of indices; b) One of the indices of the loop is proper to the current bag.
+     * Note that this definition uniquely defines to which bag a loop must be attributed in a
+     * given tree decomposition (assuming that the loop is materialized by some edge in the
+     * graph used for the TD).
      */
-    const vector<BasePair*> & getProperBasePairs();
+    const vector<Loop*> & getLoops();
 
     /**
      * @brief width Returns the width of this bag
@@ -142,6 +143,13 @@ class Bag{
     void addBasePair(BasePair * bp);
 
     /**
+     * @brief addLoop Add a loop to this bag
+     * @param l Pointer to loop to be added
+     */
+    void addLoop(Loop *l);
+
+
+    /**
      * @brief topologicalSort Sorts and returns the bags in the tree initiated at this node
      * @param result List of bags such that the leaves can be found first and, more generally,
      * children can be found before the parents.
@@ -155,8 +163,21 @@ class Bag{
      */
     double scoreBag(vector<Nucleotide> assignment);
 
+    /**
+     * @brief contains Checks that the bag contains the set of indices
+     * @param indices Set of indices
+     * @return True if the bag contains the set of indices, false otherwise
+     */
+    double contains(vector<int> indices);
 
-};  
+    /**
+     * @brief contains Checks that the bag contains a single index
+     * @param index A single position
+     * @return True if the bag contains the index, false otherwise
+     */
+
+    double contains(int index);
+};
 
 /**
  * @brief operator << Prints a bag
@@ -191,6 +212,14 @@ class TreeDecomposition{
      * @param depth Depth in tree decomposition of current bag
      */
     void showRec(int b, int depth=0);
+
+    /**
+     * @brief addLoopsRec Assigns a set of loops to the descendants of a given bag
+     * @param b The ancestor bag
+     * @param structures a set of loops
+     */
+    void addLoopsRec(Bag * b, vector<Loop* > & structures);
+
 
   public:
     vector<Bag*> bags;  
@@ -233,6 +262,13 @@ class TreeDecomposition{
     
     void reset(){bags.clear(); roots.clear(); tw=0;}
     void copyObj(TreeDecomposition * td){this->bags=td->bags; this->roots=td->roots; this->tw=td->tw;}
+
+
+    /**
+     * @brief addLoops Assigns a set of loops to the nodes of the tree-decomposition
+     * @param structures a set of loops
+     */
+    void addLoops(vector<Loop *> structures);
 };
 
 /**

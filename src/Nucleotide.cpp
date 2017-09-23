@@ -1,22 +1,45 @@
 #include "Nucleotide.hpp"
 
+char nt2char(Nucleotide n){
+    switch(n){
+      case(N_A):
+        return 'A';
+      break;
+      case(N_C):
+        return 'C';
+      break;
+      case(N_G):
+        return 'G';
+      break;
+      case(N_U):
+        return 'U';
+      break;
+    }
+    return 'X';
+}
+
+Nucleotide char2nt(char n){
+    switch(n){
+      case('A'):
+        return N_A;
+      break;
+      case('C'):
+        return N_C;
+      break;
+      case('G'):
+        return N_G;
+      break;
+      case('U'):
+        return N_U;
+      break;
+    }
+}
+
+
 ostream& operator<<(ostream& o, Nucleotide n)
 {
-  switch(n){
-    case(N_A):
-      o << "A";
-    break;
-    case(N_C):
-      o << "C";
-    break;
-    case(N_G):
-      o << "G";
-    break;
-    case(N_U):
-      o << "U";
-    break;
-  }
-  return o;
+    o<<nt2char(n);
+    return o;
 }
 
 

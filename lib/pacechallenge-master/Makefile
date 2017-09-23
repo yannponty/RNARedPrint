@@ -1,6 +1,6 @@
 CXXFLAGS=-std=c++11 -O3 -march=native -Wall -Wextra
 
-CXX=g++-5
+CXX=g++
 
 .PHONY: all
 all: tw-heuristic

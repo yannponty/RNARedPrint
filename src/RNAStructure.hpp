@@ -8,20 +8,84 @@
 #include "Nucleotide.hpp"
 
 using namespace std;
+
+/**
+ * @brief The Loop class represents a loop in the Turner model, ie a set of indices
+ */
+class Loop{
+  public:
+
+    vector<int> indices;
+    double weight;
+
+    /**
+     * @brief getIndices Returns the set of indices in
+     * @return A vector of indices contained in the loop
+     */
+    vector<int> getIndices(){
+        return indices;
+    }
+
+    /**
+     * @brief getWeight Returns the weight associated to the loop
+     * @return The weight of this loop
+     */
+    double getWeight(){
+        return weight;
+    }
+
+    /**
+     * @brief scoreLoop Associates a free-energy contribution to a set of indices, given a set of nucleotides
+     * @param nts List of assigned nucleotides
+     * @return A free-energy contribution, or +infty if the nucleotides are not allowed within that structural motif
+     */
+    virtual double scoreLoop(vector<Nucleotide> n){
+        return 0.;
+    }
+};
+
+/**
+ * @brief operator << Prints a loop
+ * @param o Output stream
+ * @param bp Pointer to a loop
+ * @return Reference to the output stream
+ */
+ostream& operator<<(ostream& o, Loop* l);
+
+/**
+ * @brief operator << Prints a sequence of loops
+ * @param o Output stream
+ * @param bp Sequence of pointers to loops
+ * @return Reference to the output stream
+ */
+ostream& operator<<(ostream& o, const vector<Loop*> & v);
+
+
+
+
 /**
  * @brief The BasePair class encodes a basic base pair
  */
-class BasePair{
+class BasePair: public Loop{
   public:
     int i;
     int j;
     int id;
+    bool isTerminal;
+
     /**
      * @brief BasePair Creates a base pair
      * @param a 5' position of base pair
      * @param b 3' position of base pair
      */
-    BasePair(int a, int b, int label=-1);
+    BasePair(int a, int b, bool isTerm=false, int label=-1);
+
+    /**
+     * @brief scoreLoop Associates a free-energy contribution to a set of indices, given a set of nucleotides
+     * @param nts List of assigned nucleotides
+     * @return A free-energy contribution, or +infty if the nucleotides are not allowed within that structural motif
+     */
+    double scoreLoop(vector<Nucleotide> n);
 
     /**
      * @brief scoreBasePair Associates a free-energy contribution to a base pair, given a pair of nucleotides
@@ -49,22 +113,8 @@ ostream& operator<<(ostream& o, BasePair* bp);
  */
 ostream& operator<<(ostream& o, const vector<BasePair*> & v);
 
-/**
- * @brief The Loop class represents a loop in the Turner model, ie a set of indices
- */
-class Loop{
-  public:
-    int i;
-    int j;
-    vector<BasePair *> basePairs;
-    /**
-     * @brief Loop Constructs a loop
-     * @param a 5' position of the enclosing base pair (-1 if exterior face)
-     * @param b 3' position of the enclosing base pair (-1 if exterior face)
-     * @param ss Set of positions involved in the loop
-     */
-    Loop(int a, int b, vector<int> ss);
-};
+
+
 
 /**
  * @brief The SecondaryStructure class represents an RNA secondary structure, possibly with pseudoknots
@@ -93,6 +143,13 @@ class SecondaryStructure{
     SecondaryStructure(string s, int idd);
     
     /**
+     * @brief checkSequence Verifies that a given sequence is a valid sequence for this secondary structure
+     * @param seq Verified sequence
+     * @return true if valid, false otherwise
+     */
+    bool checkSequence(const string & seq);
+
+    /**
      * @brief getSS Returns a representation of the secondary structure as an array of base pairing partners
      * @return Representation of the secondary structure as an array of base pairing partners
      *
@@ -101,18 +158,15 @@ class SecondaryStructure{
     vector<int> getSS();
     
     /**
-     * @brief getLabelledBPs Returns a set of base pairs decorated by the structure identifier
-     * @return Set of base pairs decorated by the structure identifier
+     * @brief getLoops Returns a set of Loops
+     * @return Set of Loops
      */
-    vector<BasePair *> getLabelledBPs();
-    
+    vector<Loop*> getLoops();
+
     /**
      * @brief getLength Returns the number of nucleotides involved in the secondary structure
      * @return Number of nucleotides involved in the secondary structure
      */
-
-    vector<vector<BasePair*> > getLabelledDBPs();
-
     int getLength();
 
     /**
@@ -120,9 +174,12 @@ class SecondaryStructure{
      * @param i Position
      * @return Set of base pairs associated with a given position
      */
-    vector<BasePair*> getPartners(int i);
+    //vector<BasePair*> getPartners(int i);
 
 };
+
+
+ostream & operator<<(ostream & o, SecondaryStructure * ss);
 
 /**
  * @brief saveAsDGF Writes to disk the graph (DGF format) associated with a set of secondary structures

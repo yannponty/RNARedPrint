@@ -9,7 +9,7 @@
 
 using namespace std;
 
-#define DEBUG 0
+extern bool DEBUG;
 
 /***************** Strings Utils *****************/
 /**

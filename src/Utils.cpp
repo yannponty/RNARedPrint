@@ -3,6 +3,8 @@
 
 #include "Utils.hpp"
 
+bool DEBUG = 0;
+
 using namespace std;
 
 vector<string> split(const std::string &s, char delim) {

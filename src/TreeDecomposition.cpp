@@ -71,12 +71,14 @@ vector<int> Bag::getProperParentIndices(){
 }
 
 int Bag::numProperParentIndices(){
-  return getProperParentIndices().size();
+    return getProperParentIndices().size();
 }
 
-const vector<BasePair*> & Bag::getProperBasePairs(){
-  return basepairs;
+const vector<Loop *> &Bag::getLoops()
+{
+    return loops;
 }
+
 
 vector<int> Bag::getIndices(){
   
@@ -92,6 +94,26 @@ int Bag::getId()
 
 void Bag::addBasePair(BasePair * bp)
 { basepairs.push_back(bp); }
+
+void Bag::addLoop(Loop * l)
+{
+    vector<int> map;
+    for(int i=0;i<indices.size();i++){
+        int pos = -1;
+        vector<int> loopIndices = l->getIndices();
+        for (int j=0;j<loopIndices.size();j++)
+        {
+            if (indices[i]==loopIndices[j])
+            {
+                pos = j;
+            }
+        }
+        map.push_back(pos);
+    }
+    if (DEBUG) cerr << "Mapping: " << this << " -> "<<l<<" => "<<map<<endl;
+    loops.push_back(l);
+    indices2loops.push_back(map);
+}
 
 void Bag::topologicalSort(vector<Bag *> & result){
   for(unsigned int i=0;i<children.size();i++)
@@ -160,27 +182,44 @@ double scoreBasePair(BasePair * bp, Nucleotide n1, Nucleotide n2){
 
 double Bag::scoreBag(vector<Nucleotide> assignments){
   double result = 0.;
-  vector<int> pi = getProperIndices();
-  assert(pi.size()==1);
-  vector<BasePair*> vbp = getProperBasePairs();
-  vector<int> ind = getIndices();
-  for (unsigned int x=0; x<vbp.size(); x++)
-  {
-    BasePair * bp =vbp[x];
-    if (DEBUG) cout << "("<<bp->i<<","<<bp->j<<")";
-    int a =-1;
-    int b =-1;
-    for(unsigned int i=0;i<ind.size();i++){
-      if (ind[i]==bp->i)
-      {  a = i;}
-      if (ind[i]==bp->j)
-      {  b = i;}
-    }
-    assert((a!=-1)&&(b!=-1));
-    if (DEBUG) cout << "("<<assignments[a]<<bp->i<<","<<assignments[b]<<bp->j<<")";
-    result += scoreBasePair(bp, assignments[a],assignments[b]);
+  for (int l=0;l<loops.size();l++){
+      Loop * lp = loops[l];
+      vector<int> map = indices2loops[l];
+      assert(map.size()==assignments.size());
+      vector<Nucleotide> loopNTs;
+      for(int i=0;i<lp->getIndices().size();i++){
+        loopNTs.push_back(N_A);
+      }
+      for(int i=0;i<map.size();i++){
+          if (map[i]!=-1){
+              loopNTs[map[i]] = assignments[i];
+          }
+      }
+      //cerr << endl;
+      //cerr << "  Loop:"<<lp<<" Map:"<< indices2loops[l]<<" Bag:"<<this<<" Assign.:"<<assignments <<" Projected:"<<loopNTs<<" score:"<<lp->scoreLoop(loopNTs)<<endl;
+
+      result += lp->getWeight()*lp->scoreLoop(loopNTs);
   }
   return result;
+}
+
+
+double Bag::contains(int index){
+    for(int i=0;i<indices.size();i++){
+        if (indices[i]==index){
+            return true;
+        }
+    }
+    return false;
+}
+
+double Bag::contains(vector<int> indices){
+    for(int i=0;i<indices.size();i++){
+        if (!contains(indices[i])){
+            return false;
+        }
+    }
+    return true;
 }
 
 ostream& operator<<(ostream& o, Bag * b){
@@ -192,7 +231,7 @@ ostream& operator<<(ostream& o, Bag * b){
       o<<", ";
     o << ""<< indices[i];
   }
-  vector<BasePair*> vbp = b->getProperBasePairs();
+  vector<Loop*> vbp = b->getLoops();
   o<<"] "<<vbp ;
   return o;
 }
@@ -310,6 +349,7 @@ void TreeDecomposition::loadFromFile(string path){
   }
   tw = 0;
   while(getline(infile, line)){
+    //  cerr << line << endl;
   	if(line[0] == 'c') continue; // comment line
   	if(line[0] == 's') continue; 
   	// solution line s which contains the string td, followed by number of bags, the width, the vertices of the original input graph
@@ -430,28 +470,40 @@ void TreeDecomposition::loadFromFile(string path){
   normalize();      
 }
 
-void TreeDecomposition::addStructure(SecondaryStructure * ss){
-  for(unsigned int i=0;i<bags.size();i++){
-    vector<int> pi = bags[i]->getProperIndices();
-    assert(pi.size()==1);
-    vector<int> all = bags[i]->getIndices();
-    int proper = pi[0];
-    vector<BasePair*> vbp = ss->getPartners(proper);
-    for (unsigned int j=0;j<vbp.size();j++)
-    {
-      BasePair * bp = vbp[j];
-      if ( (find(all.begin(), all.end(), bp->i ) != all.end())
-      && (find(all.begin(), all.end(), bp->j ) != all.end())
-      && ((proper== bp->i) || (proper== bp->j) ))
-      { 
-        bags[i]->addBasePair(bp); 
-      }
-      else
-      {
-      }
+
+void TreeDecomposition::addLoopsRec(Bag * b, vector<Loop* > & structures){
+    vector<int> removedLoops;
+    for(int i=0;i<structures.size();i++){
+        if (b->contains(structures[i]->getIndices())){
+            removedLoops.push_back(i);
+        }
     }
-  }
+    for(int i=removedLoops.size()-1;i>=0;i--){
+        int j = removedLoops[i];
+        Loop * l = structures[j];
+        if (DEBUG) cerr << "  Assigning loop "<<l<<" to "<<b<<endl;
+        b->addLoop(l);
+        structures.erase(structures.begin() + j);
+    }
+    vector<Bag*> children = b->getChildren();
+    for(int c=0;c<b->children.size();c++){
+        addLoopsRec(children[c],structures);
+    }
 }
+
+void TreeDecomposition::addLoops(vector<Loop* > structures){
+    vector<Loop *> backup;
+    for (int i=0;i<structures.size();i++){
+        backup.push_back(structures[i]);
+    }
+    for (unsigned int i=0;i<roots.size();i++){
+        addLoopsRec(bags[roots[i]],backup);
+        if (backup.empty())
+        { break; }
+    }
+    assert(backup.empty());
+}
+
 
 vector<Bag*> TreeDecomposition::getBags(){
   return bags;
@@ -469,106 +521,129 @@ void TreeDecomposition::show(int depth){
   { showRec(roots[i],depth);}
 }
 
+#define USE_LIBTW 1
+#define USE_FOX_EPSTEIN 0
+#define USE_STRASSER 0
+#define USE_GASPERS_ET_AL 0
+#define USE_BANACH_ET_AL 0
+#define USE_JOGLEKAR_ET_AL 0
+
 TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures)
 {
     string tmpfilein = "./tmp.dgf";
     string tmpfileout = "./tmp.td";
+    string baselib = "../lib";
+    string basebin = "../../bin";
 
-		TreeDecomposition * result = new TreeDecomposition();
+    TreeDecomposition * result = new TreeDecomposition();
 		
-		// library LIBTW
     TreeDecomposition * td = new TreeDecomposition();
     saveAsDGF(structures,tmpfilein,1);
 
 
     // TODO: To be replaced by a modular system for calling TD tools (or, even better a call to an external C++ API )
-    string cmd1 = string("../lib/treewidth-java");
-    string cmd2 = string("java nl.uu.cs.treewidth.TreeDecomposer 1 ../../bin/") + tmpfilein + string(" ../../bin/") + tmpfileout + string(" ../../bin/tmp.dot");
-    string cmd3 = string("../../bin/");
-    chdir(cmd1.c_str());
-    system(cmd2.c_str());
-    chdir(cmd3.c_str());		
-    //new TreeDecomposition();
-    transFileFormat(tmpfileout); 
-    td->loadFromFile(tmpfileout);
-    result->copyObj(td);
-    remove(tmpfilein.c_str());
-    remove(tmpfileout.c_str());
-		cout << "LIBTW treewidth: " << result->tw << endl;
-		td->reset();
-		
-		
-		//by Fox-Epstein (Brown University)
+    if (USE_LIBTW)
+    {
+        // library LIBTW
+        string cmd = string("java -cp "+baselib+"/treewidth-java nl.uu.cs.treewidth.TreeDecomposer 1 ./"+tmpfilein + string(" ./") + tmpfileout + string(" tmp.dot >out.tmp "));
+        system(cmd.c_str());
+        //new TreeDecomposition();
+        transFileFormat(tmpfileout);
+        td->loadFromFile(tmpfileout);
+        result->copyObj(td);
+        remove(tmpfilein.c_str());
+        remove(tmpfileout.c_str());
+        //cout << "LIBTW treewidth: " << result->tw << endl;
+		td->reset();		
+    }
+
+    //by Fox-Epstein (Brown University)
+    if (USE_FOX_EPSTEIN)
+    {
 		saveAsDGF(structures,tmpfilein,2);
-		cmd1 = "gtimeout --signal=SIGTERM 5s ../lib/2016-pace-challenge-master/tw-heuristic " + tmpfilein + string(" > ") + tmpfileout;
+        string cmd1 = "timeout --signal=SIGTERM 5s "+baselib+"2016-pace-challenge-master/tw-heuristic " + tmpfilein + string(" > ") + tmpfileout;
 		system(cmd1.c_str());
 		td->loadFromFile(tmpfileout);
-		cout << "Fox-Epstein --- treewidth: " << td->tw << endl;
-    remove(tmpfileout.c_str()); 
-    if(td->tw < result->tw){
-    	result->reset();
-    	result->copyObj(td);
+        //cout << "Fox-Epstein --- treewidth: " << td->tw << endl;
+        remove(tmpfileout.c_str());
+        if((td->tw!=0) &&  (td->tw < result->tw)){
+            result->reset();
+            result->copyObj(td);
+        }
+        td->reset();
     }
-    td->reset();
     
-    
-		// by Strasser (Karlsruhe Institute of Technology)
-		cmd1 = "gtimeout --signal=SIGTERM 5s ../lib/flow-cutter-pace16-master/flow_cutter_pace16 " + tmpfilein + string(" > ") + tmpfileout;
+    // by Strasser (Karlsruhe Institute of Technology)
+    if (USE_STRASSER)
+    {
+        string cmd1 = "timeout --signal=SIGTERM 5s "+baselib+"flow-cutter-pace16-master/flow_cutter_pace16 " + tmpfilein + string(" > ") + tmpfileout;
 		system(cmd1.c_str());
 		td->loadFromFile(tmpfileout);
-		cout << "Strasser --- treewidth: " << td->tw << endl;
+        //cout << "Strasser --- treewidth: " << td->tw << endl;
 		remove(tmpfileout.c_str());
-		if(td->tw < result->tw){
-    	result->reset();
-    	result->copyObj(td);
+        if((td->tw!=0) &&  (td->tw < result->tw)){
+            result->reset();
+            result->copyObj(td);
+        }
+        td->reset();
     }
-    td->reset();
+
     
-    // by Abseher, Musliu, Woltran (TU Wien)
-    
-    
-    
-    // by Gaspers, Gudmundsson, Jones, Mestre, Rümmele  (UNSW and University of Sidney)
-    cmd1 = "../lib/pace2016-master/";
-    cmd2 = "./tw-heuristic < ../../bin/" + tmpfilein + string(" > ") + "../../bin/" + tmpfileout;
-    cmd3 = "../../bin/";
-    chdir(cmd1.c_str());
-    system(cmd2.c_str());
-    chdir(cmd3.c_str());
-    td->loadFromFile(tmpfileout);
-    cout << "Gaspers, Gudmundsson, Jones, Mestre, Rummele --- treewidth: " << td->tw << endl;
+    // by Gaspers, Gudmundsson, Jones, Mestre, Rummele  (UNSW and University of Sidney)
+    if (USE_GASPERS_ET_AL)
+    {
+        string cmd1 = baselib+"/pace2016-master/";
+        string cmd2 = "./tw-heuristic < "+basebin+"/" + tmpfilein + string(" > ") + basebin+"/" + tmpfileout;
+        string cmd3 = basebin+"/";
+        chdir(cmd1.c_str());
+        system(cmd2.c_str());
+        chdir(cmd3.c_str());
+        td->loadFromFile(tmpfileout);
+        //cout << "Gaspers, Gudmundsson, Jones, Mestre, Rummele --- treewidth: " << td->tw << endl;
 		remove(tmpfileout.c_str());
-		if(td->tw < result->tw){
-    	result->reset();
-    	result->copyObj(td);
+        if((td->tw!=0) &&  (td->tw < result->tw)){
+            result->reset();
+            result->copyObj(td);
+        }
+        td->reset();
     }
-    td->reset();
     
     
     // by Bannach, Berndt, Ehlers (Luebeck University)
-    cmd1 = "../lib/Jdrasil-master/tw-heuristic < " + tmpfilein + string(" > ") + tmpfileout;
-    system(cmd1.c_str());
-    td->loadFromFile(tmpfileout);
-    cout << "Bannach, Berndt, Ehlers --- treewidth: " << td->tw << endl;
-    remove(tmpfileout.c_str());
-   	if(td->tw < result->tw){
-    	result->reset();
-    	result->copyObj(td);
+    if (USE_BANACH_ET_AL)
+    {
+        string cmd1 = baselib+"Jdrasil-master/tw-heuristic < " + tmpfilein + string(" > ") + tmpfileout;
+        system(cmd1.c_str());
+        td->loadFromFile(tmpfileout);
+        //cout << "Bannach, Berndt, Ehlers --- treewidth: " << td->tw << endl;
+        remove(tmpfileout.c_str());
+        if((td->tw!=0) &&  (td->tw < result->tw)){
+            result->reset();
+            result->copyObj(td);
+        }
+        td->reset();
     }
-    td->reset();
     
     // by Joglekar, Kamble, Pandian (IIT Madras)
-    cmd1 = "gtimeout --signal=SIGTERM 10s ../lib/pacechallenge-master/tw-heuristic < " + tmpfilein + string(" > ") + tmpfileout;
-    system(cmd1.c_str());
-    td->loadFromFile(tmpfileout);
-    cout << "Joglekar, Kamble, Pandian --- treewidth: " << td->tw << endl;
-    remove(tmpfileout.c_str());
-   	if(td->tw < result->tw){
-    	result->reset();
-    	result->copyObj(td);
+    if (USE_JOGLEKAR_ET_AL)
+    {
+        string cmd1 = "timeout --signal=SIGTERM 10s "+baselib+"/pacechallenge-master/tw-heuristic < " + tmpfilein + string(" > ") + tmpfileout;
+        system(cmd1.c_str());
+        td->loadFromFile(tmpfileout);
+        //cout << "Joglekar, Kamble, Pandian --- treewidth: " << td->tw << endl;
+        remove(tmpfileout.c_str());
+        if((td->tw!=0) &&  (td->tw < result->tw)){
+            result->reset();
+            result->copyObj(td);
+        }
+        td->reset();
     }
-    td->reset();
-    
+    if (DEBUG)
+    {
+        cerr << "TreeDecomposition: "<<endl;
+        result->show();
+        //cerr << endl;
+    }
     return result;
 }
 

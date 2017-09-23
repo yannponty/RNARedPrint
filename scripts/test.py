@@ -42,6 +42,16 @@ def compatible(seq,bps):
     return True
 
 if __name__ == "__main__":
+    if (sys.argv[1].startswith(".") or sys.argv[1].startswith("(")):
+        bps = []
+        l = len(sys.argv[1])
+        acc = 0
+        for i in range(1,len(sys.argv)):
+            bps = bps + parse(sys.argv[i])
+        for seq in generate(l):
+            if compatible(seq,bps):
+                acc+=1
+        print "%s\n"%(acc)
     l = int(sys.argv[1])
     allstructs = generateSS(l)
     ns = len(allstructs)
@@ -54,7 +64,7 @@ if __name__ == "__main__":
                 structs = [s1,s2,s3]
                 os.chdir("."+os.sep+"bin")
                 cmd = "."+os.sep+"RNARedPrint %s"%(" ".join(["\"%s\""%(s) for s in structs]))
-                #print cmd
+                print cmd
                 sys.stdout.flush()
                 os.system(cmd)
                 os.chdir("..")

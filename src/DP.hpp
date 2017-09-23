@@ -73,6 +73,24 @@ inline void checkBounds(long i1, long b1, long i2, long b2, string msg);
  * @brief computePartitionFunction Computes and prints to standard output the partition function for a tree decomposition
  * @param td Structure-informed tree decomposition
  */
-void computePartitionFunction(TreeDecomposition * td);
+double ** computePartitionFunction(TreeDecomposition * td);
+
+
+/**
+ * @brief PF Computes and returns the partition function over full sequences
+ * @param Z Partition function (previously computed)
+ * @param td Joint tree decomposition of structure targets
+ */
+double PF(double ** Z, TreeDecomposition * td);
+
+/**
+ * @brief stochasticSampling Generates a list of sequences from the Boltzmann distribution and stores them into the argument vector
+ * @param Z Partition function (previously computed)
+ * @param n Size of sequences
+ * @param numSamples Expected number of samples
+ * @param td Joint tree decomposition of structure targets
+ * @param result Set of generated sequences
+ */
+void stochasticSampling(double ** Z, int n, int numSamples, TreeDecomposition *td, vector<string> & result);
 
 #endif

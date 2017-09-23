@@ -2,13 +2,48 @@
 #include <cassert>
 #include <stack>
 #include <fstream>
+#include <sstream>
+#include "Utils.hpp"
+
+
+
+
+
+ostream& operator<<(ostream& o, Loop* lp){
+  o << "(";
+  for(int i=0;i<lp->getIndices().size();i++){
+      if (i!=0)
+          o<<",";
+      o<<lp->getIndices()[i];
+  }
+  o<<")";
+  return o;
+}
+
+ostream& operator<<(ostream& o, const vector<Loop*> & v){
+      o << "[";
+      for(unsigned int i=0;i<v.size();i++)
+      {
+        if (i!=0)
+          o<<", ";
+        o << ""<< v[i];
+      }
+      o<<"]";
+      return o;
+    }
+
+
 
 ////// Base pairs elements //////
 
-BasePair::BasePair(int a, int b, int label){
+BasePair::BasePair(int a, int b, bool isTerm, int label){
   i=a;
   j=b;
   id=label;
+  isTerminal=isTerm;
+  indices.push_back(a);
+  indices.push_back(b);
+  weight=1.0;
 }
 
 double BasePair::scoreBasePair(Nucleotide n1, Nucleotide n2){
@@ -65,10 +100,20 @@ double BasePair::scoreBasePair(Nucleotide n1, Nucleotide n2){
   return DBL_MAX;
 }
 
+double BasePair::scoreLoop(vector<Nucleotide> n){
+  assert(n.size()==2);
+  Nucleotide n1 = n[0];
+  Nucleotide n2 = n[1];
+  return scoreBasePair(n1,n2);
+}
 
 
 ostream& operator<<(ostream& o, BasePair* bp){
   o << "("<<bp->i<<","<<bp->j<<")";
+  if (bp->isTerminal)
+  {
+      o<<"{T}";
+  }
   return o;
 }
 
@@ -117,6 +162,22 @@ void SecondaryStructure::parseSS(string s){
   }
 }
 
+ostream & operator<<(ostream & o, SecondaryStructure * s){
+    vector<int> ss = s->getSS();
+    for(int i=0;i<ss.size();i++){
+        if (ss[i]==-1){
+            o << '.';
+        }
+        else if (ss[i]>i){
+            o << '(';
+        }
+        else{
+            o << ')';
+        }
+    }
+    return o;
+}
+
 vector<int> SecondaryStructure::getSS()
 {
   vector<int> result;
@@ -135,37 +196,34 @@ vector<int> SecondaryStructure::getSS()
   return result;
 }
 
-vector<BasePair *> SecondaryStructure::getLabelledBPs()
+bool SecondaryStructure::checkSequence(const string & seq)
 {
-  vector<BasePair *> result;
   for(unsigned int k=0;k<basePairs.size();k++)
   {
-    BasePair * bp = basePairs[k];
-    result.push_back(new BasePair(bp->i,bp->j,id));
-  }    
-  return result;
+      BasePair * bp = basePairs[k];
+      if (bp->scoreBasePair(char2nt(seq[bp->i]), char2nt(seq[bp->j])) == DBL_MAX)
+      {
+        return false;
+      }
+  }
+  return true;
 }
 
-vector<vector<BasePair*> > SecondaryStructure::getLabelledDBPs()
+
+
+vector<Loop*> SecondaryStructure::getLoops()
 {
-  vector<vector<BasePair *> > result;
-  for(unsigned int i=0; i<pos2BPs.size(); i++){
-    result.push_back(vector<BasePair*>());
-    for(unsigned int j=0; j<pos2BPs[i].size(); j++){
-      BasePair * bp = pos2BPs[i][j];
-      result[i].push_back(new BasePair(bp->i,bp->j,id));
-    }
+  vector<Loop *> result;
+  for(unsigned int i=0; i<basePairs.size(); i++){
+      BasePair * bp = basePairs[i];
+      result.push_back(bp);
   }
-  return result; 
+  return result;
 }
 
 
 int SecondaryStructure::getLength(){
   return length;
-}
-
-vector<BasePair*> SecondaryStructure::getPartners(int i){
-  return pos2BPs[i];
 }
 
 /*
@@ -201,88 +259,70 @@ void saveAsDGF(vector<SecondaryStructure*> SSs, string path)
 
 void saveAsDGF(vector<SecondaryStructure*> SSs, string path, int type)
 {
-  int edge = 0;
-  int vert = 0;
-
-  // Export sequence links
-  string seqlinks = "";
+  if (DEBUG) cerr << "Saving to DGF: "<<path << endl;
   int len = SSs[0]->getLength();
-  for (int i=0; i<len-1; i++){
-    int num1 = i; // Number in label starts at 1
-    int num2 = num1+1;  
-    char buff[64];
-    if (type == 1)
-    	sprintf(buff, "e %d %d\n", num1+1, num2+1);
-    else if (type == 2)
-    	sprintf(buff, "%d %d\n", num1+1, num2+1);
-    seqlinks += buff;
+
+  int edge = 0;
+  int vert = len;
+
+  bool** adj = new bool* [len];
+  for (int i=0; i<len; i++){
+      adj[i] = new bool[len];
+      for (int j=0; j<len; j++){
+        adj[i][j] = false;
+        }
+      if (i>0){
+          //adj[i-1][i] = true;
+      }
   }
 
-  // Count nodes and arcs from the sequence
-  edge += len;
-  vert = len - 1;
-
-  // base pair
-  string arclins = "";
-  vector<BasePair *> res;
-	
-	for(unsigned i=0; i<SSs.size(); i++){
-		vector<BasePair *> ss = SSs[i]->getLabelledBPs();
-		for(unsigned j=0; j<ss.size(); j++){
-			BasePair* bp = ss[j];
-			if(bp->j-bp->i==1) continue;
-			
-			bool matched = false;
-			if(res.size() > 0){
-				for(unsigned m=0; m<res.size(); m++){
-					BasePair* bpe = res[m];
-					if (bp->i == bpe->i and bp->j == bpe->j) {
-						matched = true;
-						break;
-					}
-				}
-			} else {
-				res.push_back(new BasePair(bp->i, bp->j));
-				matched = true;
-			}
-			
-			if(!matched) res.push_back(new BasePair(bp->i, bp->j));
-		}
-	}
-
-  // Do the same with base pairs
-   
-  string arclinks = "";
-  for(unsigned int i=0; i<res.size(); i++){
-		BasePair * bp = res[i];
-		int num1 = bp->i;
-		int num2 = bp->j;
-		char buff[64];
-		if (type == 1)
-			sprintf(buff, "e %d %d\n", num1+1, num2+1);
-		else if (type == 2)
-			sprintf(buff, "%d %d\n", num1+1, num2+1);
-		arclinks += buff;
-		vert ++;
+  for (int i=0; i<SSs.size(); i++){
+      SecondaryStructure * ss = SSs[i];
+      vector<Loop*> loops = ss->getLoops();
+      for (int j=0; j<loops.size(); j++){
+          Loop* lp = loops[j];
+          vector<int> indices = lp->getIndices();
+          //cerr << "  " << indices <<endl;
+          for (int k=0; k<indices.size(); k++){
+              for (int l=0; l<indices.size(); l++){
+                if (l>k){
+                    adj[indices[k]][indices[l]] = true;
+                }
+              }
+          }
+      }
   }
+
+  stringstream links;
+  for (int i=0; i<len; i++){
+      for (int j=0; j<len; j++){
+          if (adj[i][j]){
+              edge ++;
+              if (type == 1)
+                  links << "e "<< (i+1) << " " << (j+1) << endl;
+              else if (type == 2)
+                  links << (i+1) << " " << (j+1) << endl;
+          }
+      }
+  }
+
   // Final number of edges and vertices
-  char buff[64];
+  stringstream problem;
   if (type == 1)
-  	sprintf(buff, "p edge %d %d\n", edge, vert);
+    problem << "p edge " << vert << " " << edge << endl;
   else if (type == 2)
-  	sprintf(buff, "p tw %d %d\n", edge, vert);
-  string problem = buff;
+      problem << "p tw " << vert << " " << edge << endl;
+
+  if (DEBUG) cerr <<"  Problem: "<< problem.str() << endl << "   Edges: "<<links.str()<< endl;
+
 
   // Finish up the dgf file
-  string dgf = "";
-  dgf += problem;
-  dgf += seqlinks;
-  dgf += arclinks;
-
   ofstream outfile;
   outfile.open(path.c_str());
-  outfile << dgf;
+  outfile << problem.str();
+  outfile << links.str();
   outfile.close();
   
 }
 ///////////////////////////////////
+
