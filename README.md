@@ -14,6 +14,6 @@ To count the number of sequences compatible with a bunch of secondary structures
  * ..((((..))))
 
 first clone the project, move into the directory:
- * make
  * cd bin
+ * make -C ..
  * RNARedPrint  "((((....))))" "((((..)))).." "..((((..))))"
