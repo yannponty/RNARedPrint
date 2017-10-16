@@ -185,12 +185,13 @@ void stochasticSamplingRec(Bag * b, long y, TreeDecomposition * td, double ** Z,
     int pi = b->getProperIndices()[0];
 
     double r = fRand(Z[id][y]);
-    //cerr << "r <- "<<r<<"(Max="<<Z[id][y]<<")" <<endl;
+    if (DEBUG) {cerr << "    r <- "<<r<<"(Max="<<Z[id][y]<<")" <<endl;}
 
-    for(int n=0;n< NUM_NUCLEOTIDES;n++)
+    for(int n=0;n<NUM_NUCLEOTIDES;n++)
     {
         assignment.push_back((Nucleotide) n);
         double localZ = BF(b->scoreBag(assignment));
+        if (DEBUG) {  cerr << "    Score bag for "<< nt2char((Nucleotide) n)<<": "<<b->scoreBag(assignment)<<endl;}
         for(unsigned int i=0; i<children.size(); i++){
             Bag * c = children[i];
             int idc = c->getId();
@@ -199,11 +200,11 @@ void stochasticSamplingRec(Bag * b, long y, TreeDecomposition * td, double ** Z,
             localZ *= Z[idc][yc];
         }
         r -= localZ;
-        //cerr << "  r <- "<<r<<endl;
+        if (DEBUG) cerr << "    r <- "<<r<<endl;
         assignment.pop_back();
         if (r<0){
             result[pi]=nt2char((Nucleotide) n);
-            //cerr << "  Found!"<<pi<<"="<< ((Nucleotide) n) <<endl;
+            if (DEBUG) cerr << "    Found!"<<pi<<"="<< ((Nucleotide) n) <<endl;
             for(unsigned int i=0; i<children.size(); i++){
                 Bag * c = children[i];
                 int idc = c->getId();
@@ -229,8 +230,11 @@ void stochasticSampling(double ** Z, int n, int numSamples, TreeDecomposition * 
             seq[i] = 'X';
         }
         for(unsigned int r=0;r<td->roots.size();r++){
+            if (DEBUG) cerr << "  Backtracking from " << td->roots[r] << endl;
             stochasticSamplingRec(td->bags[td->roots[r]], 0, td, Z, seq);
+            if (DEBUG) cerr << "    After partial backtrack: " << string(seq) << endl;
         }
+        if (DEBUG) cerr << "  Final seq " << string(seq) << endl;
         result.push_back(string(seq));
     }
 }

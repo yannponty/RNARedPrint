@@ -268,7 +268,7 @@ class TreeDecomposition{
      * @brief addLoops Assigns a set of loops to the nodes of the tree-decomposition
      * @param structures a set of loops
      */
-    void addLoops(vector<Loop *> structures);
+    void addLoops(vector<Loop *> structures, double weight);
 };
 
 /**

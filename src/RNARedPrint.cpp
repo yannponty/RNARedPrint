@@ -33,9 +33,26 @@ void usage(string cmd){
   cerr << "Usage: "<<cmd<<" Struct1 Struct2 ... ["<< NUM_OPTION<< " k]"<<endl;
   cerr << "Generates valid designs for the RNA secondary structures from the weighted distribution"<<endl;
   cerr << "  "<<NUM_OPTION<<" k - Sets number of generated sequences (default "<<DEFAULT_NUM_OPTION<<")"<<endl;
-  //cerr << "  "<<WEIGHTS_OPTION<<" w1,w2... - Assigns custom weights to targeted structures (default 1.)"<<endl;
+  cerr << "  "<<WEIGHTS_OPTION<<" w1,w2... - Assigns custom weights to targeted structures (default 1.)"<<endl;
   cerr << "  "<<COUNT_OPTION<<" - Simply compute the partition function and report the result."<<endl;
   exit(2);
+}
+
+vector<double> parseWeights(string str)
+{
+    vector<double> res;
+    stringstream ss(str);
+
+     int i;
+
+     while (ss >> i)
+     {
+         res.push_back(i);
+
+         if (ss.peek() == ',')
+             ss.ignore();
+     }
+     return res;
 }
 
 int main(int argc, char *argv[]){
@@ -64,6 +81,10 @@ int main(int argc, char *argv[]){
       else if (string(argv[i])==COUNT_OPTION){
         count_mode = true;
       }
+      else if (string(argv[i])==WEIGHTS_OPTION){
+        i++;
+        weights = parseWeights(string(argv[i]));
+      }
       else if (string(argv[i])==DEBUG_OPTION){
         DEBUG = true;
       }
@@ -71,6 +92,16 @@ int main(int argc, char *argv[]){
   }
   if (structures.size()==0){
       cerr << "Error: Missing target structure(s)."<< endl;
+      usage(string(argv[0]));
+  }
+  // No weight specified explicitly => 1. for everyone
+  if (weights.size()==0){
+    for (int i=0;i<structures.size();i++)
+        weights.push_back(1.);
+  }
+
+  if (structures.size()!=weights.size()){
+      cerr << "Error: #Specified weights does not match #Structures."<< endl;
       usage(string(argv[0]));
   }
 
@@ -87,7 +118,7 @@ int main(int argc, char *argv[]){
   }
   else{
     for (unsigned int i=0;i<structures.size();i++){
-      td->addLoops(structures[i]->getLoops());
+      td->addLoops(structures[i]->getLoops(),weights[i]);
     }
     double ** Z = computePartitionFunction(td);
     if (count_mode){

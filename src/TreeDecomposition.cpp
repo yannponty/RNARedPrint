@@ -364,8 +364,9 @@ void TreeDecomposition::loadFromFile(string path){
   		Bag * b = new Bag(bagIndex-1);  // bag index begin at 0;
   		for(unsigned i=2; i<dataSize; i++){
   			int index;
-  			istringstream(data[i]) >> index;
-  			b->addIndex(index-1);         // the index in the bag also begins at 0;
+            istringstream(data[i]) >> index;
+            if(index>0)
+                b->addIndex(index-1);         // the index in the bag also begins at 0;
   		}
   		bags.push_back(b);
   		edges.push_back(vector<int>());
@@ -378,6 +379,52 @@ void TreeDecomposition::loadFromFile(string path){
   		edges[ib1-1].push_back(ib2-1);
   		edges[ib2-1].push_back(ib1-1);
   	}
+  }
+
+  /*
+   * #Patch for unpaired positions#
+   * Unpaired positions induce a syntax error, leading to an index being unparsable.
+   * Since all unpaired positions are equivalent (note that, in loop-based
+   * energy models, loops become cliques and are therefore not alone in their
+   * connected components), it does not matter which position is represented by
+   * such bags, so we:
+   * 1) identify, in an array of boolean, which positions are unpaired, by
+   * first computing which positions are paired;
+   * 2) assign to each unpaired (ie empty) bag one of the positions left unpaired.
+   */
+  vector<bool> occupied;
+  for (int i=0;i<bags.size();i++)
+  {
+    Bag * b = bags[i];
+    vector<int> indices = b->getIndices();
+    for (int j=0;j<indices.size();j++)
+    {
+      int k = indices[j];
+      while(occupied.size()<=k)
+      {
+          occupied.push_back(false);
+      }
+      occupied[k] = true;
+    }
+  }
+  int lastEmpty=0;
+  for (int i=0;i<bags.size();i++)
+  {
+      Bag * b = bags[i];
+      if ((b->getIndices().size()==0))
+      {
+        for(;lastEmpty<occupied.size();lastEmpty++)
+        {
+            if (!occupied[lastEmpty])
+            {
+                occupied[lastEmpty] = true;
+                b->addIndex(lastEmpty);
+                occupied.push_back(false);
+                break;
+            }
+        }
+
+      }
   }
 
   /*
@@ -491,9 +538,10 @@ void TreeDecomposition::addLoopsRec(Bag * b, vector<Loop* > & structures){
     }
 }
 
-void TreeDecomposition::addLoops(vector<Loop* > structures){
+void TreeDecomposition::addLoops(vector<Loop* > structures, double weight){
     vector<Loop *> backup;
     for (int i=0;i<structures.size();i++){
+        structures[i]->weight=weight;
         backup.push_back(structures[i]);
     }
     for (unsigned int i=0;i<roots.size();i++){
@@ -551,8 +599,8 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
         transFileFormat(tmpfileout);
         td->loadFromFile(tmpfileout);
         result->copyObj(td);
-        remove(tmpfilein.c_str());
-        remove(tmpfileout.c_str());
+        //remove(tmpfilein.c_str());
+        //remove(tmpfileout.c_str());
         //cout << "LIBTW treewidth: " << result->tw << endl;
 		td->reset();		
     }
