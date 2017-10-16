@@ -9,10 +9,11 @@ Tree-decomposition based dynamic programming algorithm for multiple target RNA d
 This first prototype only computes the number of sequences compatible with a set of secondary structures.
 
 To count the number of sequences compatible with a bunch of secondary structures 
-  ((((....))))
-  ((((..))))..
-  ..((((..))))
+ * ((((....))))
+ * ((((..))))..
+ * ..((((..))))
+
 first clone the project, move into the directory:
-  make
-  cd bin
-  RNARedPrint  "((((....))))" "((((..)))).." "..((((..))))"
+ * cd bin
+ * make -C ..
+ * RNARedPrint  "((((....))))" "((((..)))).." "..((((..))))"
