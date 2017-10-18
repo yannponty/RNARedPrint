@@ -124,59 +124,6 @@ void Bag::topologicalSort(vector<Bag *> & result){
 }
 
 
-double scoreBasePair(BasePair * bp, Nucleotide n1, Nucleotide n2){
-  switch(n1){
-    case N_A:
-      switch(n2){
-        case N_U:
-          return 0.;
-          break;
-      case N_A:
-      case N_G:
-      case N_C:
-          break;
-      }
-      break;
-    case N_C:
-      switch(n2){
-        case N_G:
-          return 0.;
-          break;
-        case N_A:
-        case N_U:
-        case N_C:
-          break;
-      }
-      break;
-    case N_G:
-      switch(n2){
-        case N_C:
-          return 0.;
-          break;
-        case N_U:
-          return 0.;
-          break;
-        case N_A:
-        case N_G:
-          break;
-      }
-      break;
-    case N_U:
-      switch(n2){
-        case N_A:
-          return 0.;
-          break;
-        case N_G:
-          return 0.;
-          break;
-        case N_C:
-        case N_U:
-          break;
-      }
-      break;
-  }
-  return DBL_MAX;
-}
 
 
 
@@ -538,10 +485,9 @@ void TreeDecomposition::addLoopsRec(Bag * b, vector<Loop* > & structures){
     }
 }
 
-void TreeDecomposition::addLoops(vector<Loop* > structures, double weight){
+void TreeDecomposition::addLoops(vector<Loop* > structures){
     vector<Loop *> backup;
     for (int i=0;i<structures.size();i++){
-        structures[i]->weight=weight;
         backup.push_back(structures[i]);
     }
     for (unsigned int i=0;i<roots.size();i++){
@@ -605,10 +551,11 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
 		td->reset();		
     }
 
+    saveAsDGF(structures,tmpfilein,2);
+
     //by Fox-Epstein (Brown University)
     if (USE_FOX_EPSTEIN)
     {
-		saveAsDGF(structures,tmpfilein,2);
         string cmd1 = "timeout --signal=SIGTERM 5s "+baselib+"2016-pace-challenge-master/tw-heuristic " + tmpfilein + string(" > ") + tmpfileout;
 		system(cmd1.c_str());
 		td->loadFromFile(tmpfileout);

@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "Nucleotide.hpp"
 
 char nt2char(Nucleotide n){
@@ -15,7 +16,7 @@ char nt2char(Nucleotide n){
         return 'U';
       break;
     }
-    return 'X';
+    assert(false && "Bad Nucleotide");
 }
 
 Nucleotide char2nt(char n){
@@ -33,6 +34,7 @@ Nucleotide char2nt(char n){
         return N_U;
       break;
     }
+    assert(false && "Bad character");
 }
 
 

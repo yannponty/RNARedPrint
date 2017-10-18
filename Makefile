@@ -1,5 +1,5 @@
 MAIN_SOURCE = src/RNARedPrint.cpp  
-SOURCES = src/DP.cpp  src/Nucleotide.cpp  src/RNAStructure.cpp  src/TreeDecomposition.cpp  src/Utils.cpp
+SOURCES = src/DP.cpp  src/Nucleotide.cpp  src/RNAStructure.cpp  src/TreeDecomposition.cpp  src/Utils.cpp src/EnergyModels.cpp
 
 OBJS = $(SOURCES:.cpp=.o)
 EXEC = bin/RNARedPrint

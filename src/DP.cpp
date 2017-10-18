@@ -16,7 +16,7 @@ void show(vector<int> indices, vector<Nucleotide> assignments){
 }
 
 double BF(double dG){
-  return exp(-dG/RT);
+  return exp(-dG / (RT));
 }
 
 vector<Nucleotide> decode(long index, int numIndices){
@@ -108,7 +108,7 @@ double **  computePartitionFunction(TreeDecomposition * td){
         if (DEBUG) cout << "    ";
         if (DEBUG) show(tmp2,assignment);
         double localZ = BF(b->scoreBag(assignment));
-        if (DEBUG) cout << " *-> "<<localZ;
+        if (DEBUG) cout << " *-> "<<localZ<< "("<< b->scoreBag(assignment)<< ")";
         for(unsigned int i=0; i<children.size(); i++){
           Bag * c = children[i];
           int idc = c->getId();
@@ -217,6 +217,7 @@ void stochasticSamplingRec(Bag * b, long y, TreeDecomposition * td, double ** Z,
             return;
         }
     }
+    assert(false&&"Could not locate suitable value for nucleotide!");
 }
 
 

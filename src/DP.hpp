@@ -10,9 +10,10 @@
 #include "RNAStructure.hpp"
 #include "Nucleotide.hpp"
 #include "TreeDecomposition.hpp"
+#include "EnergyModels.hpp"
 
-#define TEMP 37.
-#define RT 0.0019872370936902486 * (273.15 + TEMP) * 100
+using namespace std;
+
 
 /**
  * @brief show Outputs to cout the nucleotides associated with a set of positions

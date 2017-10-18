@@ -2,8 +2,11 @@
 
 
 #include "Utils.hpp"
+#include "EnergyModels.hpp"
 
 bool DEBUG = 0;
+
+EnergyModel  dGModel;
 
 using namespace std;
 

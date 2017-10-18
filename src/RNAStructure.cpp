@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include "Utils.hpp"
+#include "EnergyModels.hpp"
 
 
 
@@ -36,80 +37,25 @@ ostream& operator<<(ostream& o, const vector<Loop*> & v){
 
 ////// Base pairs elements //////
 
-BasePair::BasePair(int a, int b, bool isTerm, int label){
+BasePair::BasePair(int a, int b, bool isTerm){
   i=a;
   j=b;
-  id=label;
   isTerminal=isTerm;
   indices.push_back(a);
   indices.push_back(b);
   weight=1.0;
 }
 
-double BasePair::scoreBasePair(Nucleotide n1, Nucleotide n2){
-  switch(n1){
-    case N_A:
-      switch(n2){
-        case N_U:
-          return 0.;
-          break;
-      case N_A:
-      case N_G:
-      case N_C:
-          break;
-      }
-      break;
-    case N_C:
-      switch(n2){
-        case N_G:
-          return 0.;
-          break;
-        case N_A:
-        case N_U:
-        case N_C:
-          break;
-      }
-      break;
-    case N_G:
-      switch(n2){
-        case N_C:
-          return 0.;
-          break;
-        case N_U:
-          return 0.;
-          break;
-        case N_A:
-        case N_G:
-          break;
-      }
-      break;
-    case N_U:
-      switch(n2){
-        case N_A:
-          return 0.;
-          break;
-        case N_G:
-          return 0.;
-          break;
-        case N_C:
-        case N_U:
-          break;
-      }
-      break;
-  }
-  return DBL_MAX;
-}
-
 double BasePair::scoreLoop(vector<Nucleotide> n){
   assert(n.size()==2);
   Nucleotide n1 = n[0];
   Nucleotide n2 = n[1];
-  return scoreBasePair(n1,n2);
+  return dGBasePair(n1, n2, isTerminal);
 }
 
 
 ostream& operator<<(ostream& o, BasePair* bp){
-  o << "("<<bp->i<<","<<bp->j<<")";
+  o << "("<<bp->i<<"-"<<bp->j<<")";
   if (bp->isTerminal)
   {
       o<<"{T}";
@@ -132,13 +78,58 @@ ostream& operator<<(ostream& o, const vector<BasePair*> & v){
 ///////////////////////////////////
 
 
+Stack::Stack(int a5, int b5, int b3, int a3)
+{
+    i5 = a5;
+    j5 = b5;
+    j3 = b3;
+    i3 = a3;
+    indices.push_back(a5);
+    indices.push_back(b5);
+    indices.push_back(b3);
+    indices.push_back(a3);
+    weight=1.0;
+}
+
+double Stack::scoreLoop(vector<Nucleotide> n)
+{
+    assert(n.size()==4);
+    Nucleotide n5a = n[0];
+    Nucleotide n5b = n[1];
+    Nucleotide n3b = n[2];
+    Nucleotide n3a = n[3];
+    return dGStacking(n5a,n5b,n3b,n3a);
+}
+
+ostream& operator<<(ostream& o, Stack* bp){
+  o << "("<<bp->i5<<"-"<<bp->i3<<","<<bp->j5<<"-"<<bp->j3<<")";
+  return o;
+}
+
+ostream& operator<<(ostream& o, const vector<Stack*> & v){
+      o << "[";
+      for(unsigned int i=0;i<v.size();i++)
+      {
+        if (i!=0)
+          o<<", ";
+        o << ""<< v[i];
+      }
+      o<<"]";
+      return o;
+    }
+
 ////// Secondary structures ///////
 
-SecondaryStructure::SecondaryStructure(string s, int idd)
+SecondaryStructure::SecondaryStructure(string s, int idd, bool stack)
 {
   length = s.size();
   id = idd;
+  stackModel = stack;
   parseSS(s);
+}
+
+SecondaryStructure::setStacked(bool stack){
+    stackModel = stack;
 }
 
 void SecondaryStructure::parseSS(string s){
@@ -159,6 +150,16 @@ void SecondaryStructure::parseSS(string s){
       pos2BPs[i].push_back(bp);
       pos2BPs[j].push_back(bp);
     }
+  }
+
+  // Annotates terminal loops
+  vector<int>ss =  getSS();
+  for(unsigned int k=0;k<basePairs.size();k++)
+  {
+    BasePair * bp = basePairs[k];
+    int l = ss[bp->i+1];
+    if ((l==bp->i) || (l!=bp->j-1))
+        bp->isTerminal = true;
   }
 }
 
@@ -201,7 +202,7 @@ bool SecondaryStructure::checkSequence(const string & seq)
   for(unsigned int k=0;k<basePairs.size();k++)
   {
       BasePair * bp = basePairs[k];
-      if (bp->scoreBasePair(char2nt(seq[bp->i]), char2nt(seq[bp->j])) == DBL_MAX)
+      if (dGBasePair(char2nt(seq[bp->i]), char2nt(seq[bp->j]), bp->isTerminal) == DBL_MAX)
       {
         return false;
       }
@@ -209,14 +210,28 @@ bool SecondaryStructure::checkSequence(const string & seq)
   return true;
 }
 
+double SecondaryStructure::getEnergy(const string & seq)
+{
+    return dGStructure(this,seq);
+}
+
 
 
 vector<Loop*> SecondaryStructure::getLoops()
 {
   vector<Loop *> result;
+  if (!stackModel){
   for(unsigned int i=0; i<basePairs.size(); i++){
       BasePair * bp = basePairs[i];
       result.push_back(bp);
+  }
+  }
+  else{
+      for(unsigned int i=0; i<basePairs.size(); i++){
+          BasePair * bp = basePairs[i];
+          if (!bp->isTerminal)
+              result.push_back(new Stack(bp->i,bp->i+1,bp->j-1,bp->j));
+      }
   }
   return result;
 }

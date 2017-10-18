@@ -11,14 +11,14 @@
 #include <stdexcept> 
 
 
+using namespace std;
+
 #include "Utils.hpp"
 #include "Nucleotide.hpp"
 #include "RNAStructure.hpp"
-#include "TreeDecomposition.hpp"
+#include "EnergyModels.hpp"
 #include "DP.hpp"
-
-
-using namespace std;
+#include "TreeDecomposition.hpp"
 
 #define DEFAULT_NUM_OPTION 10
 
@@ -27,14 +27,24 @@ using namespace std;
 #define WEIGHTS_OPTION "--weights"
 #define COUNT_OPTION "--count"
 #define DEBUG_OPTION "--debug"
+#define ENERGY_MODEL_OPTION "--model"
+#define TEMP_OPTION "-T"
 
 
 void usage(string cmd){
   cerr << "Usage: "<<cmd<<" Struct1 Struct2 ... ["<< NUM_OPTION<< " k]"<<endl;
   cerr << "Generates valid designs for the RNA secondary structures from the weighted distribution"<<endl;
-  cerr << "  "<<NUM_OPTION<<" k - Sets number of generated sequences (default "<<DEFAULT_NUM_OPTION<<")"<<endl;
-  cerr << "  "<<WEIGHTS_OPTION<<" w1,w2... - Assigns custom weights to targeted structures (default 1.)"<<endl;
-  cerr << "  "<<COUNT_OPTION<<" - Simply compute the partition function and report the result."<<endl;
+  cerr << "  ------ Mode ------------"<<endl;
+  cerr << "  "<<NUM_OPTION<<" k           - Sets number of generated sequences (default "<<DEFAULT_NUM_OPTION<<")"<<endl;
+  cerr << "  "<<COUNT_OPTION<<"           - Simply compute the partition function and report the result."<<endl;
+  cerr << "  ------ Options ------------"<<endl;
+  cerr << "  "<<WEIGHTS_OPTION<<" w1,w2.. - Assigns custom weights to each targeted structure (default 1. for all)"<<endl;
+  cerr << "     "<<TEMP_OPTION<<" t - Sets the pseudotemperature (default 37.C)"<<endl;
+  cerr << "  "<<ENERGY_MODEL_OPTION<<" m         - Set energy model used for stochastic sampling: "<<endl
+       << "        m = "<<COMPATIBLE_BP_MODEL<<": Uniform (Default);"<<endl
+       << "        m = "<<NUSSINOV_BP_MODEL<<": Nussinov (-3/-2/-1 for GC/AU/GU);"<<endl
+       << "        m = "<<FITTED_BP_MODEL<<": 6 parameters fitted model for (GC/AU/GU,inner/terminal) base-pairs"<<endl
+       << "        m = "<<FITTED_STACKING_PAIRS_MODEL<<": fitted model for stacking pairs (not implemented yet!)"<<endl;
   exit(2);
 }
 
@@ -43,7 +53,7 @@ vector<double> parseWeights(string str)
     vector<double> res;
     stringstream ss(str);
 
-     int i;
+     double i;
 
      while (ss >> i)
      {
@@ -64,7 +74,7 @@ int main(int argc, char *argv[]){
 
   for(int i = 1;i<argc;i++){
     if (argv[i][0]!= '-'){
-      structures.push_back(new SecondaryStructure(string(argv[i]),structures.size()));
+      structures.push_back(new SecondaryStructure(string(argv[i]),structures.size(),false));
       int nn = structures[structures.size()-1]->getLength();
       if ((n>0)&&(nn!=n)){
           cerr << "Error: Inconsistent length across target structures."<< endl;
@@ -85,11 +95,22 @@ int main(int argc, char *argv[]){
         i++;
         weights = parseWeights(string(argv[i]));
       }
+      else if (string(argv[i])==ENERGY_MODEL_OPTION){
+        i++;
+        dGModel = (EnergyModel) atoi(argv[i]);
+      }
+      else if (string(argv[i])==TEMP_OPTION){
+        i++;
+        TEMP = atof(argv[i]);
+      }
       else if (string(argv[i])==DEBUG_OPTION){
         DEBUG = true;
       }
     }
   }
+  initStackingModel();
+
+  if (DEBUG) cerr << "RT: "<<RT<<endl;
   if (structures.size()==0){
       cerr << "Error: Missing target structure(s)."<< endl;
       usage(string(argv[0]));
@@ -106,6 +127,11 @@ int main(int argc, char *argv[]){
   }
 
   TreeDecompositionFactory * tdFact;
+  bool stackedModel = (dGModel==FITTED_STACKING_PAIRS_MODEL);
+
+  for (unsigned int i=0;i<structures.size();i++){
+    structures[i]->setStacked(stackedModel);
+  }
 
   // To be replaced by alternative implementations
   tdFact = new TDLibFactory();
@@ -117,9 +143,13 @@ int main(int argc, char *argv[]){
     return EXIT_FAILURE;
   }
   else{
-    for (unsigned int i=0;i<structures.size();i++){
-      td->addLoops(structures[i]->getLoops(),weights[i]);
-    }
+      for (unsigned int i=0;i<structures.size();i++){
+        vector<Loop*> loops = structures[i]->getLoops();
+        for (int j=0;j<loops.size();j++){
+            loops[j]->setWeight(weights[i]);
+        }
+        td->addLoops(loops);
+      }
     double ** Z = computePartitionFunction(td);
     if (count_mode){
         cout << "Partition function: "<<PF(Z,td)<<endl;
@@ -132,7 +162,7 @@ int main(int argc, char *argv[]){
         cout << structures[j] << endl;
     }
     for (unsigned int i=0;i<seqs.size();i++){
-        cout << seqs[i] << endl;
+        cout << seqs[i];
         cout.flush();
         for (unsigned int j=0;j<structures.size();j++){
             if (!structures[j]->checkSequence(seqs[i]))
@@ -140,7 +170,12 @@ int main(int argc, char *argv[]){
                 cerr << "Error: sequence uncompatible with structure "<<structures[j]<<endl;
                 exit(2);
             }
+            else{
+                cout<<" E"<<(j+1)<<"="<<structures[j]->getEnergy(seqs[i]);
+                cout.flush();
+            }
         }
+        cout  << endl;
     }
     return EXIT_SUCCESS;
   }
