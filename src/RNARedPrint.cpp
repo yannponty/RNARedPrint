@@ -25,6 +25,7 @@ using namespace std;
 
 #define NUM_OPTION "--num"
 #define WEIGHTS_OPTION "--weights"
+#define GC_WEIGHT_OPTION "-gcw"
 #define COUNT_OPTION "--count"
 #define DEBUG_OPTION "--debug"
 #define ENERGY_MODEL_OPTION "--model"
@@ -40,6 +41,7 @@ void usage(string cmd){
   cerr << "  "<<COUNT_OPTION<<"           - Simply compute the partition function and report the result."<<endl;
   cerr << "------ Options ------------"<<endl;
   cerr << "  "<<WEIGHTS_OPTION<<" w1,w2.. - Assigns custom weights to each targeted structure (default 1. for all)"<<endl;
+  cerr << "  "<<GC_WEIGHT_OPTION<<" w       - Assigns custom weight to each occurrence of GC, to control GC% (default 1.)"<<endl;
   //cerr << "  "<<TEMP_OPTION<<" t              - Sets the pseudotemperature (default 37.C)"<<endl;
   cerr << "  "<<ENERGY_MODEL_OPTION<<" m         - Set energy model used for stochastic sampling: "<<endl
        << "        m = "<<COMPATIBLE_BP_MODEL<<": Uniform (Default);"<<endl
@@ -97,6 +99,11 @@ int main(int argc, char *argv[]){
         i++;
         weights = parseWeights(string(argv[i]));
       }
+      else if (string(argv[i])==GC_WEIGHT_OPTION){
+        i++;
+        GCWeight = atof(argv[i]);
+      }
+
       else if (string(argv[i])==ENERGY_MODEL_OPTION){
         i++;
         dGModel = (EnergyModel) atoi(argv[i]);

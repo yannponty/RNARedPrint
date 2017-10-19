@@ -64,6 +64,13 @@ inline void checkBounds(long i1, long b1, long i2, long b2, string msg){
   assert(i1>=0 && i1<b1 && i2>=0 && i2<b2);
 }
 
+double GCBonus( Nucleotide n){
+    if ((n==N_G)||(n==N_C)){
+        return GCWeight;
+    }
+    return 1.;
+}
+
 double **  computePartitionFunction(TreeDecomposition * td){
   vector<Bag*> bags = td->topologicalSort();
   int numBags = bags.size();
@@ -104,7 +111,7 @@ double **  computePartitionFunction(TreeDecomposition * td){
         assignment.push_back((Nucleotide) n);
         if (DEBUG) cout << "    ";
         if (DEBUG) show(tmp2,assignment);
-        double localZ = b->scoreBag(assignment);
+        double localZ = b->scoreBag(assignment)*GCBonus((Nucleotide) n);
         if (DEBUG) cout << " *-> "<<localZ<< "("<< b->scoreBag(assignment)<< ")";
         for(unsigned int i=0; i<children.size(); i++){
           Bag * c = children[i];
@@ -187,7 +194,7 @@ void stochasticSamplingRec(Bag * b, long y, TreeDecomposition * td, double ** Z,
     for(int n=0;n<NUM_NUCLEOTIDES;n++)
     {
         assignment.push_back((Nucleotide) n);
-        double localZ = b->scoreBag(assignment);
+        double localZ = b->scoreBag(assignment)*GCBonus((Nucleotide) n);
         if (DEBUG) {  cerr << "    Score bag for "<< nt2char((Nucleotide) n)<<": "<<b->scoreBag(assignment)<<endl;}
         for(unsigned int i=0; i<children.size(); i++){
             Bag * c = children[i];

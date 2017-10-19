@@ -1,6 +1,7 @@
 #include "EnergyModels.hpp"
 #include <assert.h>
 
+double GCWeight = 1.;
 
 double TEMP = 37.;
 

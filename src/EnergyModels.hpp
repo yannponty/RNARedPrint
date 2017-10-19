@@ -10,6 +10,7 @@ using namespace std;
 extern double TEMP;
 #define RT (0.0019872370936902486 * (273.15 + TEMP) * 100)
 
+extern double GCWeight;
 
 extern double COMPATIBLE_BP_MATRIX[4][4];
 
