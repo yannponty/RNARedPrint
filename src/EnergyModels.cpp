@@ -136,6 +136,10 @@ void initStackingModel()
 
 }
 
+bool isCompatible(Nucleotide n1, Nucleotide n2){
+    return COMPATIBLE_BP_MATRIX[n1][n2]!=DBL_MAX;
+}
+
 double dGBasePair(Nucleotide n1, Nucleotide n2, bool isTerminal){
     switch (dGModel) {
     case COMPATIBLE_BP_MODEL:
@@ -204,3 +208,5 @@ void updateFittedModel(double N_GC_IN, double N_AU_IN, double N_GU_IN, double N_
     FITTING_BP_TERMINAL_MATRIX[N_G][N_U] = GU_TERM;
     FITTING_BP_TERMINAL_MATRIX[N_U][N_G] = GU_TERM;
 }
+
+

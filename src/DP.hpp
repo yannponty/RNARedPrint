@@ -22,12 +22,6 @@ using namespace std;
  */
 void show(vector<int> indices, vector<Nucleotide> assignments);
 
-/**
- * @brief BF Associates a Boltzmann factor to an energy contribution
- * @param dG Free-energy contribution
- * @return Boltzmann factor exp(-dG/RT) of contribution
- */
-double BF(double dG);
 
 /**
  * @brief decode Decodes the encoding of a nucleotide assignment into a vector of nucleotides

@@ -4,11 +4,11 @@
 #include "Utils.hpp"
 #include "EnergyModels.hpp"
 
+using namespace std;
+
 bool DEBUG = 0;
 
 EnergyModel  dGModel;
-
-using namespace std;
 
 vector<string> split(const std::string &s, char delim) {
   vector<string> result;
@@ -52,3 +52,6 @@ vector<int> setSubstract(vector<int> indices,vector<int> parent){
   return res;
 }
 
+double BF(double dG){
+  return exp(-dG / (RT));
+}

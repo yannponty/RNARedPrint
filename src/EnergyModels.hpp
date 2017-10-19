@@ -27,6 +27,8 @@ typedef enum {COMPATIBLE_BP_MODEL, NUSSINOV_BP_MODEL, FITTED_BP_MODEL, FITTED_ST
 
 extern EnergyModel dGModel;
 
+bool isCompatible(Nucleotide n1, Nucleotide n2);
+
 double dGBasePair(Nucleotide n1, Nucleotide n2, bool isTerminal);
 
 double dGStacking(Nucleotide n5A, Nucleotide n5B,Nucleotide n3B, Nucleotide n3A);

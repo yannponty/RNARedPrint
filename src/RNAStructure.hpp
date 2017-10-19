@@ -185,7 +185,7 @@ class SecondaryStructure{
      */
     SecondaryStructure(string s, int idd, bool stack);
     
-    setStacked(bool stack);
+    void setStacked(bool stack);
 
     /**
      * @brief checkSequence Verifies that a given sequence is a valid sequence for this secondary structure
@@ -193,6 +193,8 @@ class SecondaryStructure{
      * @return true if valid, false otherwise
      */
     bool checkSequence(const string & seq);
+
+    bool hasIsolatedBasePair();
 
     /**
      * @brief getEnergy Returns the energy, in the current model of the argument for this secondary structure

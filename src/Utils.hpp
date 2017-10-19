@@ -5,12 +5,19 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <math.h>
 
 
 using namespace std;
 
 extern bool DEBUG;
 
+/**
+ * @brief BF Associates a Boltzmann factor to an energy contribution
+ * @param dG Free-energy contribution
+ * @return Boltzmann factor exp(-dG/RT) of contribution
+ */
+double BF(double dG);
 
 /***************** Strings Utils *****************/
 /**

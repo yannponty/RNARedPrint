@@ -1,5 +1,6 @@
 #include "TreeDecomposition.hpp"
 #include <cassert>
+#include <math.h>
 
 
 Bag::Bag(int i){
@@ -128,7 +129,7 @@ void Bag::topologicalSort(vector<Bag *> & result){
 
 
 double Bag::scoreBag(vector<Nucleotide> assignments){
-  double result = 0.;
+  double result = 1.;
   for (int l=0;l<loops.size();l++){
       Loop * lp = loops[l];
       vector<int> map = indices2loops[l];
@@ -142,10 +143,12 @@ double Bag::scoreBag(vector<Nucleotide> assignments){
               loopNTs[map[i]] = assignments[i];
           }
       }
+      double dGLoop = lp->scoreLoop(loopNTs);
       //cerr << endl;
       //cerr << "  Loop:"<<lp<<" Map:"<< indices2loops[l]<<" Bag:"<<this<<" Assign.:"<<assignments <<" Projected:"<<loopNTs<<" score:"<<lp->scoreLoop(loopNTs)<<endl;
-
-      result += lp->getWeight()*lp->scoreLoop(loopNTs);
+      if (DEBUG) cerr<<"{"<< loopNTs <<","<< lp->weight<<","<< dGLoop<< "}";
+      if (dGLoop==DBL_MAX) return 0.;
+      result *= pow(lp->weight,-lp->scoreLoop(loopNTs));
   }
   return result;
 }

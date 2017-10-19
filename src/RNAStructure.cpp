@@ -128,7 +128,7 @@ SecondaryStructure::SecondaryStructure(string s, int idd, bool stack)
   parseSS(s);
 }
 
-SecondaryStructure::setStacked(bool stack){
+void SecondaryStructure::setStacked(bool stack){
     stackModel = stack;
 }
 
@@ -202,7 +202,7 @@ bool SecondaryStructure::checkSequence(const string & seq)
   for(unsigned int k=0;k<basePairs.size();k++)
   {
       BasePair * bp = basePairs[k];
-      if (dGBasePair(char2nt(seq[bp->i]), char2nt(seq[bp->j]), bp->isTerminal) == DBL_MAX)
+      if (!isCompatible(char2nt(seq[bp->i]), char2nt(seq[bp->j])))
       {
         return false;
       }
@@ -215,18 +215,47 @@ double SecondaryStructure::getEnergy(const string & seq)
     return dGStructure(this,seq);
 }
 
+bool hasBasePair(int i, int j, vector<int>ss){
+    if ((i<0)||(i>=ss.size()))
+        return false;
+    if ((j<0)||(j>=ss.size()))
+        return false;
+    return ss[i] == j;
+}
+
+bool SecondaryStructure::hasIsolatedBasePair()
+{
+    vector<int> ss = getSS();
+    for(int i=0;i<ss.size();i++){
+        if (ss[i]>i){
+            if (!hasBasePair(i-1,ss[i]+1,ss) && !hasBasePair(i+1,ss[i]-1,ss)){
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
 
 
 vector<Loop*> SecondaryStructure::getLoops()
 {
   vector<Loop *> result;
   if (!stackModel){
+      if (DEBUG){
+          cerr << "[BPs based loops]"<<endl;
+          cerr.flush();
+      }
   for(unsigned int i=0; i<basePairs.size(); i++){
       BasePair * bp = basePairs[i];
       result.push_back(bp);
   }
   }
   else{
+      if (DEBUG){
+          cerr << "[Stacks based loops]"<<endl;
+          cerr.flush();
+      }
       for(unsigned int i=0; i<basePairs.size(); i++){
           BasePair * bp = basePairs[i];
           if (!bp->isTerminal)

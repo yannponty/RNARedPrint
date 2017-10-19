@@ -28,23 +28,25 @@ using namespace std;
 #define COUNT_OPTION "--count"
 #define DEBUG_OPTION "--debug"
 #define ENERGY_MODEL_OPTION "--model"
+#define HELP_OPTION "--help"
 #define TEMP_OPTION "-T"
 
 
 void usage(string cmd){
   cerr << "Usage: "<<cmd<<" Struct1 Struct2 ... ["<< NUM_OPTION<< " k]"<<endl;
   cerr << "Generates valid designs for the RNA secondary structures from the weighted distribution"<<endl;
-  cerr << "  ------ Mode ------------"<<endl;
+  cerr << "------ Mode ------------"<<endl;
   cerr << "  "<<NUM_OPTION<<" k           - Sets number of generated sequences (default "<<DEFAULT_NUM_OPTION<<")"<<endl;
   cerr << "  "<<COUNT_OPTION<<"           - Simply compute the partition function and report the result."<<endl;
-  cerr << "  ------ Options ------------"<<endl;
+  cerr << "------ Options ------------"<<endl;
   cerr << "  "<<WEIGHTS_OPTION<<" w1,w2.. - Assigns custom weights to each targeted structure (default 1. for all)"<<endl;
-  cerr << "     "<<TEMP_OPTION<<" t - Sets the pseudotemperature (default 37.C)"<<endl;
+  //cerr << "  "<<TEMP_OPTION<<" t              - Sets the pseudotemperature (default 37.C)"<<endl;
   cerr << "  "<<ENERGY_MODEL_OPTION<<" m         - Set energy model used for stochastic sampling: "<<endl
        << "        m = "<<COMPATIBLE_BP_MODEL<<": Uniform (Default);"<<endl
        << "        m = "<<NUSSINOV_BP_MODEL<<": Nussinov (-3/-2/-1 for GC/AU/GU);"<<endl
        << "        m = "<<FITTED_BP_MODEL<<": 6 parameters fitted model for (GC/AU/GU,inner/terminal) base-pairs"<<endl
-       << "        m = "<<FITTED_STACKING_PAIRS_MODEL<<": fitted model for stacking pairs (not implemented yet!)"<<endl;
+       << "        m = "<<FITTED_STACKING_PAIRS_MODEL<<": Fitted model for stacking pairs (no isolated base-pairs!)"<<endl;
+  cerr << "  "<<HELP_OPTION<<"            - Display help message and exit"<<endl;
   exit(2);
 }
 
@@ -103,6 +105,9 @@ int main(int argc, char *argv[]){
         i++;
         TEMP = atof(argv[i]);
       }
+      else if (string(argv[i])==HELP_OPTION){
+          usage(argv[0]);
+      }
       else if (string(argv[i])==DEBUG_OPTION){
         DEBUG = true;
       }
@@ -131,6 +136,10 @@ int main(int argc, char *argv[]){
 
   for (unsigned int i=0;i<structures.size();i++){
     structures[i]->setStacked(stackedModel);
+    if (stackedModel &&  structures[i]->hasIsolatedBasePair()){
+        cerr << "Error: Isolated base-pairs currently unsupported in stacking pair mode."<< endl;
+        usage(string(argv[0]));
+    }
   }
 
   // To be replaced by alternative implementations
