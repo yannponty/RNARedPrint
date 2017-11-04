@@ -31,12 +31,12 @@ double NUSSINOV_BP_MATRIX[4][4] =
                {  DBL_MAX, DBL_MAX,     -3., DBL_MAX}
         };
 
-double GC_IN = -0.09070;
-double AU_IN = 1.26630;
-double GU_IN = 0.78566;
-double GC_TERM = -2.10208;
-double AU_TERM = -0.52309;
-double GU_TERM = -0.88474;
+double GC_TERM = -0.09070;
+double AU_TERM = 1.26630;
+double GU_TERM = 0.78566;
+double GC_IN = -2.10208;
+double AU_IN = -0.52309;
+double GU_IN = -0.88474;
 
 double FITTING_BP_INNER_MATRIX[4][4] =
         /* 3' NT:     N_A,     N_U,     N_G,     N_C */

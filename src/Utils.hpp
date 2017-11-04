@@ -12,6 +12,8 @@ using namespace std;
 
 extern bool DEBUG;
 
+
+
 /**
  * @brief BF Associates a Boltzmann factor to an energy contribution
  * @param dG Free-energy contribution

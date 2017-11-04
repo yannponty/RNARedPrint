@@ -8,7 +8,7 @@
 using namespace std;
 
 extern double TEMP;
-#define RT (0.0019872370936902486 * (273.15 + TEMP) * 100)
+#define RT (0.0019872370936902486 * (273.15 + TEMP))
 
 extern double GCWeight;
 
