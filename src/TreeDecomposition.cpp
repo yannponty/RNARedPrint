@@ -3,7 +3,8 @@
 #include <math.h>
 
 
-Bag::Bag(int i){
+Bag::Bag(int i)
+{
   id = i;  
   parent = NULL;
   //cout << "[+1']";
@@ -35,15 +36,37 @@ int Bag::numProper(){
   return getProperIndices().size();
 }
 
-vector<int> Bag::getProperIndices(){
+void
+Bag::precomputeProperIndices() {
+    if (parent==NULL){
+	proper_indices = indices; 
+    }
+    else{
+	proper_indices = setSubstract(indices,parent->indices);
+    }
+}
+
+const vector<int> &
+Bag::getProperIndices() {
+    return proper_indices;
+}
+
+void
+Bag::precomputeProperParentIndices(){
   if (parent==NULL){
-    return indices; 
+    vector<int> empty;
+    proper_parent_indices = empty; 
   }
   else{
-    vector<int> sub = setSubstract(indices,parent->indices);
-    return  sub;
+    proper_parent_indices = setSubstract(indices,getProperIndices());
   }
 }
+
+const vector<int> &
+Bag::getProperParentIndices(){
+    return proper_parent_indices;
+}
+
 
 void Bag::replaceChild (Bag * prev, Bag * next){
   for(unsigned int i=0;i<children.size();i++)
@@ -60,17 +83,6 @@ vector<Bag*> Bag::getChildren(){
   return children;
 }
 
-vector<int> Bag::getProperParentIndices(){
-  if (parent==NULL){
-    vector<int> empty;
-    return empty; 
-  }
-  else{
-    vector<int> sub = setSubstract(indices,getProperIndices());
-    return  sub;
-  }
-}
-
 int Bag::numProperParentIndices(){
     return getProperParentIndices().size();
 }
@@ -81,8 +93,8 @@ const vector<Loop *> &Bag::getLoops()
 }
 
 
-vector<int> Bag::getIndices(){
-  
+vector<int> &
+Bag::getIndices(){
     return indices; 
 }
 
@@ -101,7 +113,7 @@ void Bag::addLoop(Loop * l)
     vector<int> map;
     for(int i=0;i<indices.size();i++){
         int pos = -1;
-        vector<int> loopIndices = l->getIndices();
+        vector<int> &loopIndices = l->getIndices();
         for (int j=0;j<loopIndices.size();j++)
         {
             if (indices[i]==loopIndices[j])
@@ -174,7 +186,7 @@ double Bag::contains(vector<int> indices){
 
 ostream& operator<<(ostream& o, Bag * b){
   o << b->getId() << "(<-"<<((b->parent==NULL)?-1:b->parent->getId()) <<"): [";
-  vector<int> indices = b->getIndices();
+  vector<int> &indices = b->getIndices();
   for(unsigned int i=0;i<indices.size();i++)
   {
     if (i!=0)
@@ -192,6 +204,12 @@ void TreeDecomposition::normalize(){
   if (DEBUG) show(1);
   //cout <<"A'";
   int numBags = bags.size();
+
+  for (auto x: getBags()) {
+      x->precomputeProperIndices();
+      x->precomputeProperParentIndices();
+  }
+  
   for(int i=0;i<numBags;i++)
   {
     
@@ -256,15 +274,24 @@ void TreeDecomposition::normalize(){
       // replace root if necessary
     }
   }
+
+  for (auto x: getBags()) {
+      x->precomputeProperIndices();
+      x->precomputeProperParentIndices();
+  }
+
+  
   if (DEBUG) cout <<"After normalization:"<<endl;
   if (DEBUG) show(1);
   for(unsigned int i=0;i<bags.size();i++)
   {
-    bags[i]->orderIndices();
+      bags[i]->orderIndices();
   }
   //cout <<"B"<<endl;
   if (DEBUG) cout <<"After reordering:"<<endl;
   if (DEBUG) show(1);
+
+
   
 }
 
@@ -346,7 +373,7 @@ void TreeDecomposition::loadFromFile(string path){
   for (int i=0;i<bags.size();i++)
   {
     Bag * b = bags[i];
-    vector<int> indices = b->getIndices();
+    vector<int> &indices = b->getIndices();
     for (int j=0;j<indices.size();j++)
     {
       int k = indices[j];
@@ -502,7 +529,8 @@ void TreeDecomposition::addLoops(vector<Loop* > structures){
 }
 
 
-vector<Bag*> TreeDecomposition::getBags(){
+const vector<Bag*> &
+TreeDecomposition::getBags(){
   return bags;
 }
 
@@ -542,7 +570,7 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
     if (USE_LIBTW)
     {
         // library LIBTW
-        string cmd = string("java -cp "+baselib+"/treewidth-java nl.uu.cs.treewidth.TreeDecomposer 1 ./"+tmpfilein + string(" ./") + tmpfileout + string(" tmp.dot >out.tmp "));
+        string cmd = string("java -cp "+baselib+"/treewidth-java nl.uu.cs.treewidth.TreeDecomposer 2 ./"+tmpfilein + string(" ./") + tmpfileout + string(" tmp.dot >out.tmp "));
         system(cmd.c_str());
         //new TreeDecomposition();
         transFileFormat(tmpfileout);
