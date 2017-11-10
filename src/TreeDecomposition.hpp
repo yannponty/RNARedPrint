@@ -21,6 +21,7 @@ using namespace std;
 class Bag{
   private:
     vector<int> indices;
+    vector<int> proper_indices;
     vector<BasePair*> basepairs;
     vector<Loop*> loops;
     vector<vector<int>> indices2loops;
@@ -90,8 +91,10 @@ g     */
      * @brief getProperIndices Returns the list of proper indices for this bag
      * @return List of proper indices for this bag, ie indices that are in this bag but not in the parent bag
      */
-    vector<int> getProperIndices();
-    
+    const
+    vector<int> &
+    getProperIndices();
+
     /**
      * @brief getChildren Returns the list of children bags for this bag
      * @return List of children bags for this bag

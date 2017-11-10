@@ -43,16 +43,16 @@ vector<Nucleotide> decode(long index, int numIndices);
 long encode(const vector<Nucleotide> & v);
 
 /**
- * @brief project Projects the assignment for a bag onto one of its descendants
+ * @brief project Projects and encodes the assignment for a bag onto one of its descendants
  * @param init
  * @param dest
  * @param val
- * @return
+ * @return code of projected assignment
  *
  * Computes the shared indices between the parent and child bags, and only retains the nucleotides assigned to
  * shared indices. The retained nucleotides appear in the same order as in the child bag.
  */
-vector<Nucleotide> project(Bag * init, Bag * dest, const vector<Nucleotide> & val);
+long encode(Bag * init, Bag * dest, const vector<Nucleotide> & val);
 
 /**
  * @brief checkBounds Checks that array accesses are within prescribed bounds (0<=i1<b1 and 0<=i2<b2)
@@ -62,7 +62,7 @@ vector<Nucleotide> project(Bag * init, Bag * dest, const vector<Nucleotide> & va
  * @param b2 Upper bound for the second dimension
  * @param msg Custom message to be printed in case of out-of-bound access
  */
-inline void checkBounds(long i1, long b1, long i2, long b2, string msg);
+inline void checkBounds(long i1, long b1, long i2, long b2, const string &msg);
 
 /**
  * @brief computePartitionFunction Computes and prints to standard output the partition function for a tree decomposition

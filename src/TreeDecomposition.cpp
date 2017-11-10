@@ -3,7 +3,8 @@
 #include <math.h>
 
 
-Bag::Bag(int i){
+Bag::Bag(int i)
+{
   id = i;  
   parent = NULL;
   //cout << "[+1']";
@@ -35,15 +36,17 @@ int Bag::numProper(){
   return getProperIndices().size();
 }
 
-vector<int> Bag::getProperIndices(){
-  if (parent==NULL){
-    return indices; 
-  }
-  else{
-    vector<int> sub = setSubstract(indices,parent->indices);
-    return  sub;
-  }
+const vector<int> &
+Bag::getProperIndices() {
+    if (parent==NULL){
+	proper_indices = indices; 
+    }
+    else{
+	proper_indices = setSubstract(indices,parent->indices);
+    }
+    return proper_indices;
 }
+
 
 void Bag::replaceChild (Bag * prev, Bag * next){
   for(unsigned int i=0;i<children.size();i++)
