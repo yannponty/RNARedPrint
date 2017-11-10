@@ -36,15 +36,35 @@ int Bag::numProper(){
   return getProperIndices().size();
 }
 
-const vector<int> &
-Bag::getProperIndices() {
+void
+Bag::precomputeProperIndices() {
     if (parent==NULL){
 	proper_indices = indices; 
     }
     else{
 	proper_indices = setSubstract(indices,parent->indices);
     }
+}
+
+const vector<int> &
+Bag::getProperIndices() {
     return proper_indices;
+}
+
+void
+Bag::precomputeProperParentIndices(){
+  if (parent==NULL){
+    vector<int> empty;
+    proper_parent_indices = empty; 
+  }
+  else{
+    proper_parent_indices = setSubstract(indices,getProperIndices());
+  }
+}
+
+const vector<int> &
+Bag::getProperParentIndices(){
+    return proper_parent_indices;
 }
 
 
@@ -61,17 +81,6 @@ void Bag::replaceChild (Bag * prev, Bag * next){
 
 vector<Bag*> Bag::getChildren(){
   return children;
-}
-
-vector<int> Bag::getProperParentIndices(){
-  if (parent==NULL){
-    vector<int> empty;
-    return empty; 
-  }
-  else{
-    vector<int> sub = setSubstract(indices,getProperIndices());
-    return  sub;
-  }
 }
 
 int Bag::numProperParentIndices(){
@@ -195,6 +204,12 @@ void TreeDecomposition::normalize(){
   if (DEBUG) show(1);
   //cout <<"A'";
   int numBags = bags.size();
+
+  for (auto x: getBags()) {
+      x->precomputeProperIndices();
+      x->precomputeProperParentIndices();
+  }
+  
   for(int i=0;i<numBags;i++)
   {
     
@@ -259,15 +274,24 @@ void TreeDecomposition::normalize(){
       // replace root if necessary
     }
   }
+
+  for (auto x: getBags()) {
+      x->precomputeProperIndices();
+      x->precomputeProperParentIndices();
+  }
+
+  
   if (DEBUG) cout <<"After normalization:"<<endl;
   if (DEBUG) show(1);
   for(unsigned int i=0;i<bags.size();i++)
   {
-    bags[i]->orderIndices();
+      bags[i]->orderIndices();
   }
   //cout <<"B"<<endl;
   if (DEBUG) cout <<"After reordering:"<<endl;
   if (DEBUG) show(1);
+
+
   
 }
 
@@ -505,7 +529,8 @@ void TreeDecomposition::addLoops(vector<Loop* > structures){
 }
 
 
-vector<Bag*> TreeDecomposition::getBags(){
+const vector<Bag*> &
+TreeDecomposition::getBags(){
   return bags;
 }
 
