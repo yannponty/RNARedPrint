@@ -5,7 +5,7 @@ OBJS = $(SOURCES:.cpp=.o)
 EXEC = bin/RNARedPrint
 
 #COMPILER = g++ -g -static-libgcc -static-libstdc++
-COMPILER = g++ -g -std=c++11
+COMPILER = g++ -O2 -g -std=c++11
 JAVA_COMPILER = javac
 
 TDLIB_SOURCES = lib/libtw/TD.java
