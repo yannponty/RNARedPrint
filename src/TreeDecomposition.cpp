@@ -81,8 +81,8 @@ const vector<Loop *> &Bag::getLoops()
 }
 
 
-vector<int> Bag::getIndices(){
-  
+vector<int> &
+Bag::getIndices(){
     return indices; 
 }
 
@@ -101,7 +101,7 @@ void Bag::addLoop(Loop * l)
     vector<int> map;
     for(int i=0;i<indices.size();i++){
         int pos = -1;
-        vector<int> loopIndices = l->getIndices();
+        vector<int> &loopIndices = l->getIndices();
         for (int j=0;j<loopIndices.size();j++)
         {
             if (indices[i]==loopIndices[j])
@@ -174,7 +174,7 @@ double Bag::contains(vector<int> indices){
 
 ostream& operator<<(ostream& o, Bag * b){
   o << b->getId() << "(<-"<<((b->parent==NULL)?-1:b->parent->getId()) <<"): [";
-  vector<int> indices = b->getIndices();
+  vector<int> &indices = b->getIndices();
   for(unsigned int i=0;i<indices.size();i++)
   {
     if (i!=0)
@@ -346,7 +346,7 @@ void TreeDecomposition::loadFromFile(string path){
   for (int i=0;i<bags.size();i++)
   {
     Bag * b = bags[i];
-    vector<int> indices = b->getIndices();
+    vector<int> &indices = b->getIndices();
     for (int j=0;j<indices.size();j++)
     {
       int k = indices[j];
@@ -542,7 +542,7 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
     if (USE_LIBTW)
     {
         // library LIBTW
-        string cmd = string("java -cp "+baselib+"/treewidth-java nl.uu.cs.treewidth.TreeDecomposer 1 ./"+tmpfilein + string(" ./") + tmpfileout + string(" tmp.dot >out.tmp "));
+        string cmd = string("java -cp "+baselib+"/treewidth-java nl.uu.cs.treewidth.TreeDecomposer 2 ./"+tmpfilein + string(" ./") + tmpfileout + string(" tmp.dot >out.tmp "));
         system(cmd.c_str());
         //new TreeDecomposition();
         transFileFormat(tmpfileout);

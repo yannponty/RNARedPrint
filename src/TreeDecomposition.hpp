@@ -46,7 +46,8 @@ class Bag{
      * @brief getIndices Returns the set of indices/positions for this bag
      * @return
      */
-    vector<int> getIndices();
+    vector<int> &
+    getIndices();
 
     /**
      * @brief orderIndices Reorders the indices such that the proper index is put at the last position in the index list.
@@ -63,7 +64,7 @@ class Bag{
      *
      * Adds a child to the bag, considered as an internal node in the tree-decomposition.
      * The parent of the child bag is set to the current bag.
-     */
+g     */
     void addChild(Bag * b);
 
     /**

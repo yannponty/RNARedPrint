@@ -16,15 +16,16 @@ void show(vector<int> indices, vector<Nucleotide> assignments){
 }
 
 
-vector<Nucleotide> decode(long index, int numIndices){
-  vector<Nucleotide> res;
+void
+decode(long index, int numIndices, vector<Nucleotide> &res){
+    res.clear();
   for(int i=0;i<numIndices;i++){
     Nucleotide n = (Nucleotide) (index % NUM_NUCLEOTIDES);
     res.push_back(n);
     index /= NUM_NUCLEOTIDES;
   }
-  return res;
 }
+
 long encode(const vector<Nucleotide> & v){
   long res=0;
   for(int i=v.size()-1;i>=0;i--){
@@ -34,11 +35,12 @@ long encode(const vector<Nucleotide> & v){
   return res;
 }
 
-vector<Nucleotide> project(Bag * init, Bag * dest, const vector<Nucleotide> & val){
-  vector<int> parentIndices = init->getIndices();
-  vector<int> childIndices = dest->getIndices();
+void
+project(Bag * init, Bag * dest, const vector<Nucleotide> & val, vector<Nucleotide> &res){
+    res.clear();
+  vector<int> &parentIndices = init->getIndices();
+  vector<int> &childIndices = dest->getIndices();
   
-  vector<Nucleotide> res;
   for(unsigned int j=0;j<childIndices.size();j++)
   {
     for(unsigned int i=0;i<parentIndices.size();i++)
@@ -51,8 +53,8 @@ vector<Nucleotide> project(Bag * init, Bag * dest, const vector<Nucleotide> & va
     }    
   }
   assert(res.size()==childIndices.size()-1);
-  return res;
 }
+
 
 inline void checkBounds(long i1, long b1, long i2, long b2, string msg){
   if (i1<0 || i1>=b1){
@@ -92,12 +94,16 @@ double **  computePartitionFunction(TreeDecomposition * td){
     vector<Bag*> children = b->getChildren();
     if (DEBUG) cout <<"{"<< b<<"}";
     int numParent = b->numProperParentIndices();
-    vector<int> tmp2 = b->getIndices();
+    vector<int> &tmp2 = b->getIndices();
     if (DEBUG) cout <<numParent<<endl;
     long numCases = (long)pow(NUM_NUCLEOTIDES,numParent);
+
+    vector<Nucleotide> assignment;
+    vector<Nucleotide> v2;
+   
     for(long y=0;y<numCases;y++)
     {
-      vector<Nucleotide> assignment = decode(y, numParent);      
+	decode(y, numParent, assignment);      
       if (DEBUG) cout << "  "<<assignment<<endl;
       
       //if (DEBUG) cout << "{" <<0<< "<=" << id<< "<"<<numBags<<"}";
@@ -117,13 +123,14 @@ double **  computePartitionFunction(TreeDecomposition * td){
           Bag * c = children[i];
           int idc = c->getId();
           //if (DEBUG) cout << "[0 i="<< i <<"]"<<(void*)c<<"|"<< ((void*)children[i]) <<"|"<<(void*)((b->getChildren())[i]);
-          vector<int> tmp = c->getIndices();
-          vector<Nucleotide> v = project(b,c,assignment);
+	  vector<int> &tmp = c->getIndices();
+	  vector<Nucleotide> v; 
+	  project(b,c,assignment,v);
+	  long yc = encode(v);
           long numCasesChild = (long)pow(NUM_NUCLEOTIDES,c->numProperParentIndices());
-          long yc = encode(v);
-          vector<Nucleotide> v2 = decode(yc, c->numProperParentIndices());
+          decode(yc, c->numProperParentIndices(), v2);
 
-          if (DEBUG) cout << ", Z["<<idc<<"]"<< v<<"("<< yc << "): "<<Z[idc][yc];
+          if (DEBUG) cout << ", Z["<<idc<<"]"<< "("<< yc << "): "<<Z[idc][yc];
           //if (DEBUG) cout << "{" <<0<< "<=" << c->getId()<< "<"<<numBags<<"}";
           //if (DEBUG) cout << "{" <<0<< "<=" << yc<< "<"<<numCasesChild<<"}";
           checkBounds(c->getId(), numBags, yc, numCasesChild, "Child");
@@ -184,12 +191,15 @@ void stochasticSamplingRec(Bag * b, long y, TreeDecomposition * td, double ** Z,
     int id = b->getId();
     vector<Bag*> children = b->getChildren();
     int numParent = b->numProperParentIndices();
-    vector<Nucleotide> assignment = decode(y, numParent);
+    vector<Nucleotide> assignment;
+    decode(y, numParent, assignment);
     // Assumption: Each bag has exactly one proper index
     int pi = b->getProperIndices()[0];
 
     double r = fRand(Z[id][y]);
     if (DEBUG) {cerr << "    r <- "<<r<<"(Max="<<Z[id][y]<<")" <<endl;}
+
+    vector<Nucleotide> v2;
 
     for(int n=0;n<NUM_NUCLEOTIDES;n++)
     {
@@ -199,8 +209,9 @@ void stochasticSamplingRec(Bag * b, long y, TreeDecomposition * td, double ** Z,
         for(unsigned int i=0; i<children.size(); i++){
             Bag * c = children[i];
             int idc = c->getId();
-            vector<Nucleotide> v = project(b,c,assignment);
-            long yc = encode(v);
+	    vector<Nucleotide> v;
+	    project(b,c,assignment,v);
+	    long yc = encode(v);
             localZ *= Z[idc][yc];
         }
         r -= localZ;
@@ -212,9 +223,10 @@ void stochasticSamplingRec(Bag * b, long y, TreeDecomposition * td, double ** Z,
             for(unsigned int i=0; i<children.size(); i++){
                 Bag * c = children[i];
                 int idc = c->getId();
-                vector<Nucleotide> v = project(b,c,assignment);
+		vector<Nucleotide> v;
+		project(b,c,assignment,v);
                 long yc = encode(v);
-                vector<Nucleotide> v2 = decode(yc, c->numProperParentIndices());
+                decode(yc, c->numProperParentIndices(), v2);
                 //cerr << "    Backtracking on "<<idc<<endl;
                 stochasticSamplingRec(c, yc, td, Z, result);
             }
