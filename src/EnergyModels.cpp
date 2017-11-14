@@ -175,7 +175,7 @@ double dGStructure(SecondaryStructure * r, const string &seq)
     double res = 0.;
     for (int i=0;i<loops.size();i++)
     {
-       vector<int> indices = loops[i]->getIndices();
+       vector<int> &indices = loops[i]->getIndices();
        vector<Nucleotide> nts;
        for (int j=0;j<indices.size();j++)
        {

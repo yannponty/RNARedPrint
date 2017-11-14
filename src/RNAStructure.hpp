@@ -22,7 +22,8 @@ class Loop{
      * @brief getIndices Returns the set of indices in
      * @return A vector of indices contained in the loop
      */
-    vector<int> getIndices(){
+    vector<int> &
+    getIndices(){
         return indices;
     }
 

@@ -34,7 +34,6 @@ ostream& operator<<(ostream& o, const vector<Loop*> & v){
     }
 
 
-
 ////// Base pairs elements //////
 
 BasePair::BasePair(int a, int b, bool isTerm){
@@ -325,7 +324,7 @@ void saveAsDGF(vector<SecondaryStructure*> SSs, string path, int type)
       vector<Loop*> loops = ss->getLoops();
       for (int j=0; j<loops.size(); j++){
           Loop* lp = loops[j];
-          vector<int> indices = lp->getIndices();
+          vector<int> &indices = lp->getIndices();
           //cerr << "  " << indices <<endl;
           for (int k=0; k<indices.size(); k++){
               for (int l=0; l<indices.size(); l++){

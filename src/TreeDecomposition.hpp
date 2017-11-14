@@ -21,6 +21,8 @@ using namespace std;
 class Bag{
   private:
     vector<int> indices;
+    vector<int> proper_indices;
+    vector<int> proper_parent_indices;
     vector<BasePair*> basepairs;
     vector<Loop*> loops;
     vector<vector<int>> indices2loops;
@@ -46,7 +48,8 @@ class Bag{
      * @brief getIndices Returns the set of indices/positions for this bag
      * @return
      */
-    vector<int> getIndices();
+    vector<int> &
+    getIndices();
 
     /**
      * @brief orderIndices Reorders the indices such that the proper index is put at the last position in the index list.
@@ -63,7 +66,7 @@ class Bag{
      *
      * Adds a child to the bag, considered as an internal node in the tree-decomposition.
      * The parent of the child bag is set to the current bag.
-     */
+g     */
     void addChild(Bag * b);
 
     /**
@@ -85,11 +88,16 @@ class Bag{
      */
     int numProper();
     
+    void
+    precomputeProperIndices();
+
     /**
      * @brief getProperIndices Returns the list of proper indices for this bag
      * @return List of proper indices for this bag, ie indices that are in this bag but not in the parent bag
      */
-    vector<int> getProperIndices();
+    const
+    vector<int> &
+    getProperIndices();
     
     /**
      * @brief getChildren Returns the list of children bags for this bag
@@ -97,12 +105,16 @@ class Bag{
      */
     vector<Bag*> getChildren();
 
+    void
+    precomputeProperParentIndices();
+
     /**
      * @brief getProperParentIndices Returns the list of indices that are proper to the parent, ie indices
      * that are in the parent list but not in this child list
      * @return list of indices that are proper to the parent, ie indices that are in the parent list but not in this child list
      */
-    vector<int> getProperParentIndices();
+    const vector<int> &
+    getProperParentIndices();
 
     /**
      * @brief numProperParentIndices Returns the number of indices that are proper to the parent, ie indices
@@ -252,7 +264,8 @@ class TreeDecomposition{
      * @brief getBags Returns the set of bags for this tree decomposition
      * @return List of pointers to bags in this tree decomposition
      */
-    vector<Bag*> getBags();
+    const vector<Bag*> &
+    getBags();
 
     /**
      * @brief show Prints this tree decomposition recursively to standard error

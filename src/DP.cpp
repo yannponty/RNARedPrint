@@ -16,15 +16,16 @@ void show(vector<int> indices, vector<Nucleotide> assignments){
 }
 
 
-vector<Nucleotide> decode(long index, int numIndices){
-  vector<Nucleotide> res;
+void
+decode(long index, int numIndices, vector<Nucleotide> &res){
+    res.clear();
   for(int i=0;i<numIndices;i++){
     Nucleotide n = (Nucleotide) (index % NUM_NUCLEOTIDES);
     res.push_back(n);
     index /= NUM_NUCLEOTIDES;
   }
-  return res;
 }
+
 long encode(const vector<Nucleotide> & v){
   long res=0;
   for(int i=v.size()-1;i>=0;i--){
@@ -34,27 +35,54 @@ long encode(const vector<Nucleotide> & v){
   return res;
 }
 
-vector<Nucleotide> project(Bag * init, Bag * dest, const vector<Nucleotide> & val){
-  vector<int> parentIndices = init->getIndices();
-  vector<int> childIndices = dest->getIndices();
+// void
+// project(Bag * init, Bag * dest, const vector<Nucleotide> & val, vector<Nucleotide> &res){
+//     res.clear();
+//   vector<int> &parentIndices = init->getIndices();
+//   vector<int> &childIndices = dest->getIndices();
   
-  vector<Nucleotide> res;
-  for(unsigned int j=0;j<childIndices.size();j++)
-  {
-    for(unsigned int i=0;i<parentIndices.size();i++)
-    {
-      if (parentIndices[i]==childIndices[j])
-      {
-        res.push_back(val[i]);
-        break;
-      }
-    }    
-  }
-  assert(res.size()==childIndices.size()-1);
-  return res;
+//   for(unsigned int j=0;j<childIndices.size();j++)
+//   {
+//     for(unsigned int i=0;i<parentIndices.size();i++)
+//     {
+//       if (parentIndices[i]==childIndices[j])
+//       {
+//         res.push_back(val[i]);
+//         break;
+//       }
+//     }    
+//   }
+//   assert(res.size()==childIndices.size()-1);
+// }
+
+// project and encode (fused)
+long
+encode(Bag * init, Bag * dest, const vector<Nucleotide> & val){
+
+    long res=0;
+    vector<int> &parentIndices = init->getIndices();
+    vector<int> &childIndices = dest->getIndices();
+  
+    for(unsigned int j=childIndices.size();j>0;)
+	{
+	    --j;
+	    for(unsigned int i=parentIndices.size();i>0;)
+		{
+		    --i;
+		    if (parentIndices[i]==childIndices[j])
+			{
+			    res *= NUM_NUCLEOTIDES;
+			    res += (int)val[i];
+			    break;
+			}
+		}    
+	}
+    return res;
 }
 
-inline void checkBounds(long i1, long b1, long i2, long b2, string msg){
+
+inline void checkBounds(long i1, long b1, long i2, long b2, const string &msg){
+#ifndef NDEBUG
   if (i1<0 || i1>=b1){
     cout <<endl<< msg<<" i1:"<<i1<<" out of range [0,"<<b1-1<< "]"<<endl;
   }
@@ -62,6 +90,7 @@ inline void checkBounds(long i1, long b1, long i2, long b2, string msg){
     cout <<endl<< msg<<" i2:"<<i2<<" out of range [0,"<<b2-1<< "]"<<endl;
   }
   assert(i1>=0 && i1<b1 && i2>=0 && i2<b2);
+#endif
 }
 
 double GCBonus( Nucleotide n){
@@ -92,12 +121,16 @@ double **  computePartitionFunction(TreeDecomposition * td){
     vector<Bag*> children = b->getChildren();
     if (DEBUG) cout <<"{"<< b<<"}";
     int numParent = b->numProperParentIndices();
-    vector<int> tmp2 = b->getIndices();
+    vector<int> &tmp2 = b->getIndices();
     if (DEBUG) cout <<numParent<<endl;
     long numCases = (long)pow(NUM_NUCLEOTIDES,numParent);
+
+    vector<Nucleotide> assignment;
+    vector<Nucleotide> v2;
+   
     for(long y=0;y<numCases;y++)
     {
-      vector<Nucleotide> assignment = decode(y, numParent);      
+	decode(y, numParent, assignment);      
       if (DEBUG) cout << "  "<<assignment<<endl;
       
       //if (DEBUG) cout << "{" <<0<< "<=" << id<< "<"<<numBags<<"}";
@@ -117,13 +150,12 @@ double **  computePartitionFunction(TreeDecomposition * td){
           Bag * c = children[i];
           int idc = c->getId();
           //if (DEBUG) cout << "[0 i="<< i <<"]"<<(void*)c<<"|"<< ((void*)children[i]) <<"|"<<(void*)((b->getChildren())[i]);
-          vector<int> tmp = c->getIndices();
-          vector<Nucleotide> v = project(b,c,assignment);
-          long numCasesChild = (long)pow(NUM_NUCLEOTIDES,c->numProperParentIndices());
-          long yc = encode(v);
-          vector<Nucleotide> v2 = decode(yc, c->numProperParentIndices());
+	  vector<int> &tmp = c->getIndices();
+	  long yc = encode(b,c,assignment);
+	  long numCasesChild = (long)pow(NUM_NUCLEOTIDES,c->numProperParentIndices());
+          decode(yc, c->numProperParentIndices(), v2);
 
-          if (DEBUG) cout << ", Z["<<idc<<"]"<< v<<"("<< yc << "): "<<Z[idc][yc];
+          if (DEBUG) cout << ", Z["<<idc<<"]"<< "("<< yc << "): "<<Z[idc][yc];
           //if (DEBUG) cout << "{" <<0<< "<=" << c->getId()<< "<"<<numBags<<"}";
           //if (DEBUG) cout << "{" <<0<< "<=" << yc<< "<"<<numCasesChild<<"}";
           checkBounds(c->getId(), numBags, yc, numCasesChild, "Child");
@@ -184,12 +216,15 @@ void stochasticSamplingRec(Bag * b, long y, TreeDecomposition * td, double ** Z,
     int id = b->getId();
     vector<Bag*> children = b->getChildren();
     int numParent = b->numProperParentIndices();
-    vector<Nucleotide> assignment = decode(y, numParent);
+    vector<Nucleotide> assignment;
+    decode(y, numParent, assignment);
     // Assumption: Each bag has exactly one proper index
     int pi = b->getProperIndices()[0];
 
     double r = fRand(Z[id][y]);
     if (DEBUG) {cerr << "    r <- "<<r<<"(Max="<<Z[id][y]<<")" <<endl;}
+
+    vector<Nucleotide> v2;
 
     for(int n=0;n<NUM_NUCLEOTIDES;n++)
     {
@@ -199,8 +234,7 @@ void stochasticSamplingRec(Bag * b, long y, TreeDecomposition * td, double ** Z,
         for(unsigned int i=0; i<children.size(); i++){
             Bag * c = children[i];
             int idc = c->getId();
-            vector<Nucleotide> v = project(b,c,assignment);
-            long yc = encode(v);
+	    long yc = encode(b,c,assignment);
             localZ *= Z[idc][yc];
         }
         r -= localZ;
@@ -212,9 +246,8 @@ void stochasticSamplingRec(Bag * b, long y, TreeDecomposition * td, double ** Z,
             for(unsigned int i=0; i<children.size(); i++){
                 Bag * c = children[i];
                 int idc = c->getId();
-                vector<Nucleotide> v = project(b,c,assignment);
-                long yc = encode(v);
-                vector<Nucleotide> v2 = decode(yc, c->numProperParentIndices());
+		long yc = encode(b,c,assignment);
+                decode(yc, c->numProperParentIndices(), v2);
                 //cerr << "    Backtracking on "<<idc<<endl;
                 stochasticSamplingRec(c, yc, td, Z, result);
             }
