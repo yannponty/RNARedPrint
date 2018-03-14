@@ -140,7 +140,7 @@ void Bag::topologicalSort(vector<Bag *> & result){
 
 
 
-double Bag::scoreBag(vector<Nucleotide> assignments){
+double Bag::scoreBag(const vector<Nucleotide> &assignments){
   double result = 1.;
   for (int l=0;l<loops.size();l++){
       Loop * lp = loops[l];

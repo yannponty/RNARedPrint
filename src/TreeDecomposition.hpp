@@ -173,7 +173,7 @@ g     */
      * @param assignments Nucleotides assigned to each positions of the bag
      * @return The overall free-energy contribution of the (proper indices in) the bag
      */
-    double scoreBag(vector<Nucleotide> assignment);
+    double scoreBag(const vector<Nucleotide> &assignment);
 
     /**
      * @brief contains Checks that the bag contains the set of indices
