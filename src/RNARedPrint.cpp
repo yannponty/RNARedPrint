@@ -8,7 +8,7 @@
 #include <stack>
 #include <float.h>
 #include <math.h>
-#include <stdexcept> 
+#include <stdexcept>
 
 
 using namespace std;
@@ -153,7 +153,18 @@ int main(int argc, char *argv[]){
   tdFact = new TDLibFactory();
 
   TreeDecomposition * td = tdFact->makeTD(structures);
-  
+
+  // BEGIN report tree width of td
+  {
+      const auto &bags = td->getBags();
+      int tw=0;
+      for (auto *bag : bags) {
+          tw = std::max(tw, bag->width()-1);
+      }
+      std::cout << "# Treewidth: "<<tw<<std::endl;
+  }
+  // END report tree width of td
+
   if (td->bags.size()==0){
     cerr << "Error: Tree decomposition software probably crashed!"<<endl;
     return EXIT_FAILURE;
