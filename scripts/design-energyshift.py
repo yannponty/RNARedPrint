@@ -68,7 +68,8 @@ def read_input(content):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Design a multi-stable riboswitch similar using Boltzmann sampling with specific target energies.')
+    parser = argparse.ArgumentParser(description='Design a multi-stable riboswitch similar using Boltzmann sampling with specific target energies.',
+                                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-T", "--temperature", type=float, default=37.0, help='Temperature of the energy calculations.')
     parser.add_argument("-n", "--number", type=int, default=1000, help='Number of designs to generate')
     parser.add_argument("-m", "--model", type=str, default='stacking', help='Model for getting a new sequence: uniform, nussinov, basepairs, stacking')
