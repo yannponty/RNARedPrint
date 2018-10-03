@@ -55,7 +55,7 @@ class RPSampler(object):
         if not RedPrintFolder:
             RedPrintFolder = self._get_path('')
             if not RedPrintFolder:
-                RedPrintFolder = "../../RNARedPrint/"
+                RedPrintFolder = os.path.join(os.path.dirname(os.path.abspath(__file__)),"../../RNARedPrint/")
         # copy RNARedprint binary to temp toDirectory for multithread
         self._copy_RNAredprint_folder(RedPrintFolder)
 

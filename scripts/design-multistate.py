@@ -68,14 +68,15 @@ def read_input(content):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Design a multi-stable riboswitch similar using Boltzmann sampling with equal target energies.',
+    parser = argparse.ArgumentParser(description='Design RNA molecules which adopt multiple structural states with equal energies using multi-dimensional Boltzmann sampling.',
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument("-i", "--input", type=argparse.FileType('r', 0), default="-", help="Read structures from input file. Default: read from stdin. Format must be dot-bracket structures, each per one line with a trailing line containing only a semi-colon.")
     parser.add_argument("-T", "--temperature", type=float, default=37.0, help='Temperature of the energy calculations.')
     parser.add_argument("-n", "--number", type=int, default=1000, help='Number of designs to generate')
     parser.add_argument("-m", "--model", type=str, default='stacking', help='Model for getting a new sequence: uniform, nussinov, basepairs, stacking')
     parser.add_argument("-g", "--gc", type=float, default=0.5, help='Target GC content.')
-    parser.add_argument("-o", "--eps", type=float, default=0.1, help='Offset eps for target energies.')
-    parser.add_argument("-p", "--gceps", type=float, default=0.05, help='Offset eps for GC content.')
+    parser.add_argument("-t", "--tolerance", type=float, default=0.1, help='Tolerated relative deviation to target energies.')
+    parser.add_argument("-c", "--gctolerance", type=float, default=0.05, help='Tolerated relative deviation to target GC content.')
     parser.add_argument("-d", "--debug", default=False, action='store_true', help='Show debug information of library')
     args = parser.parse_args()
 
@@ -197,7 +198,7 @@ def BalancedSamples(structures, target_energies, offsets, args, energy_step=0.5)
         te = [x-shift for x in target_energies]
         if (args.debug):
             print("# Current Target energies are: ", te)
-        AdmissibleSample = Sample(sampler, nstr, te, target_GC=args.gc, number=number, target_energy_eps = args.eps, target_GC_eps=args.gceps, args=args)
+        AdmissibleSample = Sample(sampler, nstr, te, target_GC=args.gc, number=number, target_energy_eps = args.tolerance, target_GC_eps=args.gctolerance, args=args)
         for s in AdmissibleSample:
             BalancedSample[getPhi(s['energies'], offsets)] = s
         # Stop criterion
