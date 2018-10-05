@@ -268,7 +268,7 @@ def Sample(sampler, nstr, target_energies, target_GC, args, target_energy_eps = 
         sampler.gcweight = sampler.gcweight * target_GC/GC_mean
         # return if large enough
         if args.debug:
-            print('# Found for current Target: ', len(AdmissibleSample)/float(number), '%')
+            print('# Found for current Target: ', len(AdmissibleSample)/float(number)*100, '%')
         if len(AdmissibleSample) >= number:
             break
     return AdmissibleSample

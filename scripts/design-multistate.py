@@ -209,7 +209,7 @@ def BalancedSamples(structures, target_energies, offsets, args, energy_step=0.5)
         tartet_energy = target_energies[0]+offsets[0]
         if (args.debug):
             print('# Stop: ', abs(np.mean(eos)-tartet_energy))
-            print("# Already found: ", len(BalancedSample)/float(args.number), "%")
+            print("# Already found: ", len(BalancedSample)/float(args.number)*100, "%")
         if (abs(abs(np.mean(eos)-tartet_energy)) > energy_step) and len(BalancedSample) > args.number:
             break
     return BalancedSample
