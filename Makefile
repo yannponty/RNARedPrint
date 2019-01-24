@@ -20,6 +20,7 @@ SUBDIRS = "./lib/2016-pace-challenge-master/" "../flow-cutter-pace16-master" \
 all: RNARedPrint
 
 RNARedPrint: $(OBJS) $(MAIN_SOURCE) $(TDLIB_OBJS)
+	mkdir -p bin
 	$(COMPILER) $(OBJS) $(MAIN_SOURCE) -o $(EXEC)
 
 %.o: %.cpp
