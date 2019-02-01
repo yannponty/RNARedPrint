@@ -114,24 +114,24 @@ def main():
     bs = BalancedSamples(structures, target_energies, offsets, energy_step=args.gc, args=args)
 
     count = 0
-    for b in sorted(bs.keys()):
+    for phi, b in sorted(bs, key=(lambda x: x[0])):
         if count > args.number:
             break
         count += 1
 
         md = RNA.md()
         md.temperature = args.temperature
-        fc = RNA.fold_compound(bs[b]['seq'], md)
+        fc = RNA.fold_compound(b['seq'], md)
         turner_energies = []
         for s in structures:
             turner_energies.append(fc.eval_structure(s))
 
         # output sequence
-        print(bs[b]['seq'],
+        print(b['seq'],
             "\"" + args.model + "\"",
             construction_time,
             timeit.default_timer() - start, # sample time until now
-            ";".join([str(bs[b]['energies'][e]) for e in sorted(bs[b]['energies'].keys())]),
+            ";".join([str(b['energies'][e]) for e in sorted(b['energies'].keys())]),
             ";".join([str(e) for e in turner_energies]), sep=";"
         )
 
@@ -187,7 +187,7 @@ def getPhi(energies, offsets):
     return phi
 
 def BalancedSamples(structures, target_energies, offsets, args, energy_step=0.5):
-    BalancedSample = {}
+    BalancedSample = []
     # construct redprint sampler object
     nstr = len(structures)
     wastefactor = 20
@@ -202,7 +202,7 @@ def BalancedSamples(structures, target_energies, offsets, args, energy_step=0.5)
         
         eos = []
         for s in AdmissibleSample:
-            BalancedSample[getPhi(s['energies'], offsets)] = s
+            BalancedSample.append([getPhi(s['energies'], offsets), s])
             # Stop criterion
             eos_mean = np.mean(list(s['energies'].values()) + list(offsets.values()))
             eos.append(eos_mean)
