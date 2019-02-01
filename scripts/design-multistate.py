@@ -199,18 +199,20 @@ def BalancedSamples(structures, target_energies, offsets, args, energy_step=0.5)
         if (args.debug):
             print("# Current Target energies are: ", te)
         AdmissibleSample = Sample(sampler, nstr, te, target_GC=args.gc, number=number, target_energy_eps = args.tolerance, target_GC_eps=args.gctolerance, args=args)
-        for s in AdmissibleSample:
-            BalancedSample[getPhi(s['energies'], offsets)] = s
-        # Stop criterion
+        
         eos = []
         for s in AdmissibleSample:
+            BalancedSample[getPhi(s['energies'], offsets)] = s
+            # Stop criterion
             eos_mean = np.mean(list(s['energies'].values()) + list(offsets.values()))
             eos.append(eos_mean)
-        tartet_energy = target_energies[0]+offsets[0]
+        if not eos:
+            eos.append(0)
+        target_energy = np.mean(te + list(offsets.values()))
         if (args.debug):
-            print('# Stop: ', abs(np.mean(eos)-tartet_energy))
+            print('# Stop: ', abs(np.mean(eos)-target_energy))
             print("# Already found: ", len(BalancedSample)/float(args.number)*100, "%")
-        if (abs(abs(np.mean(eos)-tartet_energy)) > energy_step) and len(BalancedSample) > args.number:
+        if (abs(abs(np.mean(eos)-target_energy)) > energy_step) or len(BalancedSample) > args.number:
             break
     return BalancedSample
 
