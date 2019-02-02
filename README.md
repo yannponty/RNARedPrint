@@ -52,7 +52,7 @@ cd bin
 
 Here is an example call to sample sequences 20 for three target secondory structures with weights 1,2,5 in the stacking energy model.
 ```
-./RNARedPrint --model 3 --weights 1,2,5 -gcw 0.5 --number 20 "((((....))))" "((((..)))).." "..((((..))))" 
+./RNARedPrint --model 3 --weights 1,2,5 -gcw 0.5 --num 20 "((((....))))" "((((..)))).." "..((((..))))" 
 ```
 
 Note that the weights directly control the sample distribution; however, there is no easy relationship between multiple weights and the final target values (energies and GC-content). Therefore, weights are typically inferred automatically as demonstrated by the provided scripts.
