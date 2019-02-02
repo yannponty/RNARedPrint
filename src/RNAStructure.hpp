@@ -39,7 +39,8 @@ class Loop{
      * @brief setWeight Assigns a weight to this loop
      * @param w The new weight of this loop
      */
-    double setWeight(double w){
+    void
+    setWeight(double w){
         weight = w;
     }
 
