@@ -20,6 +20,24 @@ Compile via
 make 
 ```
 
+## Usage of the fundamental tool RNARedPrint
+To use RNARedPrint directly, change to the bin sub-directory of RNARedPrint
+```
+cd bin
+```
+
+Here is an example call to sample sequences 20 for three target secondory structures with weights 1,2,5 in the stacking energy model.
+```
+./RNARedPrint --model 3 --weights 1,2,5 -gcw 0.5 --num 20 "((((....))))" "((((..)))).." "..((((..))))" 
+```
+
+Note that the weights directly control the sample distribution; however, there is no easy relationship between multiple weights and the final target values (energies and GC-content). Therefore, weights are typically inferred automatically as demonstrated by the provided scripts.
+
+For detailed info on the available arameters, please see
+```
+./RNARedPrint --help
+```
+
 
 # Multi-dimensional boltzmann sampling
 
@@ -42,25 +60,15 @@ If the scripts are located outside of the project folder, please specify a `REDP
  * Tolerance: During the sampling procedure we will only collect candidates, which are with the given tolerance range. This applies for the given target energy as well as for the target GC content. Tolerance `t` defines the range `1 + t <= current / target <= 1 + t`.
  * Targets: You can define the target energy (in kcal/mol) as well as the target GC content (in percent).
 
- For more information run the scripts with `--help`!
+Example calls:
+```
+export REDPRINT=</path/to/redprint/>
+echo -e ".((((((......)))))).((((...((((((...((((...(((.......)))..........(((....))).))))..))))))...))))....\n.((((((......)))))).((((...((((((...((((((.(((.......((........))..)))....)).))))..))))))...))))....\n......((.((((.(((((((.((.((...((((..((.....(((.......))).....))..)))).)).)))))))))..)).)).))........" | python scripts/design-energyshift.py -e 40,40,20
 
-## Usage of the fundamental tool RNARedPrint
-To use RNARedPrint directly, change to the bin sub-directory of RNARedPrint
-```
-cd bin
-```
-
-Here is an example call to sample sequences 20 for three target secondory structures with weights 1,2,5 in the stacking energy model.
-```
-./RNARedPrint --model 3 --weights 1,2,5 -gcw 0.5 --num 20 "((((....))))" "((((..)))).." "..((((..))))" 
+echo -e "(((((((((((((....)))))))))))))\n(((((.....)))))(((((.....)))))" | python scripts/design-multistate.py -n 100
 ```
 
-Note that the weights directly control the sample distribution; however, there is no easy relationship between multiple weights and the final target values (energies and GC-content). Therefore, weights are typically inferred automatically as demonstrated by the provided scripts.
-
-For detailed info on the available arameters, please see
-```
-./RNARedPrint --help
-```
+For more information run the scripts with `--help`!
  
 ## Disclaimer
 

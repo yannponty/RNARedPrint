@@ -1,18 +1,17 @@
-#!/usr/bin/env python3
 from __future__ import print_function
 
 import argparse
-import re
 import sys
 import os
+import re
 import timeit
-import RNA # ViennaRNA python bindings
 from collections import Counter
+from scipy import stats
 import numpy as np
 
-from Structure import RNAStructure
+import RNA # ViennaRNA python bindings
 from RNARedPrintSampler import RPSampler
-
+from Structure import RNAStructure
 
 def read_input(content):
     '''
@@ -66,7 +65,6 @@ def read_input(content):
 
     return structures, constraint, sequence, additions
 
-
 def main():
     parser = argparse.ArgumentParser(description='Design RNA molecules which adopt multiple structural states with equal energies using multi-dimensional Boltzmann sampling.',
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -75,12 +73,12 @@ def main():
     parser.add_argument("-n", "--number", type=int, default=1000, help='Number of designs to generate')
     parser.add_argument("-m", "--model", type=str, default='stacking', help='Model for getting a new sequence: uniform, nussinov, basepairs, stacking')
     parser.add_argument("-g", "--gc", type=float, default=0.5, help='Target GC content.')
-    parser.add_argument("-t", "--tolerance", type=float, default=0.1, help='Tolerated relative deviation to target energies.')
-    parser.add_argument("-c", "--gctolerance", type=float, default=0.05, help='Tolerated relative deviation to target GC content.')
+    parser.add_argument("-t", "--tolerance", type=float, default=0.10, help='Tolerated relative deviation to target energies.')
+    parser.add_argument("-c", "--gctolerance", type=float, default=0.1, help='Tolerated relative deviation to target GC content.')
     parser.add_argument("-d", "--debug", default=False, action='store_true', help='Show debug information of library')
     args = parser.parse_args()
-
-    if (args.debug):
+    
+    if args.debug:
         print("# Options: number={0:d}, model={1:}, temperature={2:}".format(args.number, args.model, args.temperature))
 
     data = ''
@@ -88,14 +86,11 @@ def main():
         data = data + '\n' + line
     (structures, constraint, start_sequence, _) = read_input(data)
 
-    # time the sampling
-    start = timeit.default_timer()
-
     # remove lonely pairs
     structures = [RNAStructure(s).removeLonelyPairs() for s in structures]
 
     # print input
-    if (args.debug):
+    if args.debug:
         print("# " + "\n# ".join(structures) + "\n# " + constraint)
 
     # print header for csv file
@@ -107,116 +102,107 @@ def main():
                 ["turner_energy"]*len(structures)
             )
     )
+    
+    # time the sampling
+    time_start = timeit.default_timer()
 
-    target_energies, offsets, construction_time = getTargetEnergy(structures, args)
-    if (args.debug):
-        print("# Target Energies are: ", target_energies)
-    bs = BalancedSamples(structures, target_energies, offsets, energy_step=args.gc, args=args)
+    nstr = len(structures)
+    wastefactor = 20
+    stacksize = (wastefactor*args.number)
+    if stacksize < 1000:
+        stacksize = 1000
+    sampler = RPSampler(structures, model=args.model, temperature=args.temperature, stacksize=stacksize, StopConstruct=True, debug=args.debug)
+    construction_time = sampler.construction_time
+    # get first sequence sample with energies with GC weight optimization and fixed high weights
+    initialsample = Sample(sampler, nstr, target_energies=None, target_GC=args.gc, number=1000, args=args)
 
-    count = 0
-    for phi, b in sorted(bs, key=(lambda x: x[0])):
+    # get target energies
+    target_energies = getTargetEnergy(structures, initialsample, args)
+    if args.debug:
+        print("# Turner Target Energies are: ", target_energies)
+    # get energy offsets
+    slope, intercept = getEnergyOffsets(structures, initialsample, args)
+    # correct target energies with offsets
+    for t in range(0, len(structures)):
+        target_energies[t]  = (target_energies[t] - intercept[t]) / slope[t]
+    if args.debug:
+        print("# Simple Target Energies are: ", target_energies)
+
+    #sampler.weights = [1.0] * nstr
+    AdmissibleSample = Sample(sampler, nstr, target_energies=target_energies, target_GC=args.gc, target_energy_eps = args.tolerance, target_GC_eps=args.gctolerance, number=args.number, args=args)
+
+    for count, a in enumerate(AdmissibleSample):
         if count > args.number:
             break
-        count += 1
-
         md = RNA.md()
         md.temperature = args.temperature
-        fc = RNA.fold_compound(b['seq'], md)
+        fc = RNA.fold_compound(a['seq'], md)
         turner_energies = []
         for s in structures:
             turner_energies.append(fc.eval_structure(s))
+        
+        #print('$ simple model: ', a['energies'], ' viennaRNA: ', fc.eval_structure(str(i)))
+        print(a['seq'],
+                "\"" + args.model + "\"",
+                construction_time,
+                timeit.default_timer() - time_start,
+                ";".join([str(a['energies'][e]) for e in sorted(a['energies'].keys())]),
+                ";".join([str(e) for e in turner_energies]),
+                sep=";")
 
-        # output sequence
-        print(b['seq'],
-            "\"" + args.model + "\"",
-            construction_time,
-            timeit.default_timer() - start, # sample time until now
-            ";".join([str(b['energies'][e]) for e in sorted(b['energies'].keys())]),
-            ";".join([str(e) for e in turner_energies]), sep=";"
-        )
-
-def getTargetEnergy(structures, args):
-    sampler = RPSampler(structures, model=args.model, weights=[1]*len(structures), temperature=args.temperature, stacksize=1000, StopConstruct=True, debug=args.debug)
-
-    # get new sequecne
-    newsample, energies = sampler.dump_new_stack()
-    # get energy offsets
-    offsets = getEnergyOffsets(structures, newsample, energies, args)
-    # find target energy_step
-    phi = 99999.9
-    target_energies= []
-    for i, s in enumerate(newsample):
-        current_phi = getPhi(energies[i], offsets)
-        if current_phi < phi:
-            phi = current_phi
-            target_energies = [np.mean(list(energies[i].values()) + list(offsets.values()))]*len(structures)
-            if (args.debug):
-                print('# Curren Phi and Simple Target Energies: ', current_phi, energies[i])
-    # correct target energies with offsets
-    for i, o in offsets.items():
-        target_energies[i] -= o
-
-    return target_energies, offsets, sampler.construction_time
-
-def getEnergyOffsets(structures, newsample, energies, args):
+def getTargetEnergy(structures, sample, args):
     nstr = len(structures)
-    offsets = np.zeros( (len(newsample), nstr) )
+    # find target energy_step
+    energies = np.zeros( (len(sample), nstr) )
+    target_energies= {}
+
+    for i, s in enumerate(sample):
+        for t in range(0, nstr):
+            # calculate offset between turner eos and simple model eos
+            energies[i,t] = s['energies'][t]
+
+    mean_target = np.mean(energies)
+    for t in range(0, nstr):
+        target_energies[t] = mean_target
+    return target_energies
+
+def getEnergyOffsets(structures, sample, args):
+    nstr = len(structures)
+    simple = np.zeros( (len(sample), nstr) )
+    turner = np.zeros( (len(sample), nstr) )
     # iterate over sample
-    for i, s in enumerate(newsample):
-        # get ViennaRNA fold compound object
+    for i, s in enumerate(sample):
         md = RNA.md()
         md.temperature = args.temperature
-        fc = RNA.fold_compound(s, md)
+        fc = RNA.fold_compound(s['seq'], md)
+        turner_energies = []
+        for structure in structures:
+            turner_energies.append(fc.eval_structure(structure))
         # iterate over structures
-        for structure_i, structure in enumerate(structures):
+        for t in range(0, nstr):
             # calculate offset between turner eos and simple model eos
-            offsets[i,structure_i] = fc.eval_structure(structure) - energies[i][structure_i]
-    # calculate mean offsets
-    mean_offsets = {}
+            simple[i,t] = s['energies'][t]
+            turner[i,t] = turner_energies[t]
+    turner = np.where(turner > 1000, np.nan, turner)
+    # get linear regression
+    slope = {}
+    intercept = {}
     for t in range(0, nstr):
-        mean_offsets[t] = np.mean(offsets[:,t])
-    if (args.debug):
-        print('# mean offsets are: ', mean_offsets)
-    return mean_offsets
+        varx=simple[:,t]
+        vary=turner[:,t]
+        mask = ~np.isnan(varx) & ~np.isnan(vary)
+        slope[t], intercept[t], r_value, p_value, std_err = stats.linregress(varx[mask],vary[mask])
 
-def getPhi(energies, offsets):
-    mean_eos = np.mean(list(energies.values()) + list(offsets.values()))
-    phi = 0
-    for i, eos in energies.items():
-        phi += abs(eos + offsets[i] - mean_eos)
-    return phi
+    if args.debug:
+        print('# Slopes and intercepts are: ', slope, intercept)
+    return slope, intercept
 
-def BalancedSamples(structures, target_energies, offsets, args, energy_step=0.5):
-    BalancedSample = []
-    # construct redprint sampler object
-    nstr = len(structures)
-    wastefactor = 20
-    number = 1000
-    sampler = RPSampler(structures, model=args.model, weights=([1.0] * nstr), gcweight=1.0, temperature=args.temperature, stacksize=(wastefactor*number), debug=args.debug)
+def Sample(sampler, nstr, target_GC, args, target_energies=None, target_energy_eps = 0.1, target_GC_eps=0.05, maxiterations=20, number=1000):
+    '''If target energies is none, we will sample with the initial weights and just
+    adopt the GC weight.
 
-    for shift in np.arange(0, 9999, (energy_step)):
-        te = [x-shift for x in target_energies]
-        if (args.debug):
-            print("# Current Target energies are: ", te)
-        AdmissibleSample = Sample(sampler, nstr, te, target_GC=args.gc, number=number, target_energy_eps = args.tolerance, target_GC_eps=args.gctolerance, args=args)
-        
-        eos = []
-        for s in AdmissibleSample:
-            BalancedSample.append([getPhi(s['energies'], offsets), s])
-            # Stop criterion
-            eos_mean = np.mean(list(s['energies'].values()) + list(offsets.values()))
-            eos.append(eos_mean)
-        if not eos:
-            eos.append(0)
-        target_energy = np.mean(te + list(offsets.values()))
-        if (args.debug):
-            print('# Stop: ', abs(np.mean(eos)-target_energy))
-            print("# Already found: ", len(BalancedSample)/float(args.number)*100, "%")
-        if abs(np.mean(eos)-target_energy) > energy_step or len(BalancedSample) > args.number:
-            break
-    return BalancedSample
-
-def Sample(sampler, nstr, target_energies, target_GC, args, target_energy_eps = 0.10, target_GC_eps=0.05, maxiterations=10, number=1000):
+    returns: list of dictionarys like: {'seq': sequence, 'energies': {structint: energy, structint: energy}}
+    '''
     # weights = [math.exp(1/((args.temperature + 273.15)*0.00198717))] * nstr
 
     AdmissibleSample = []
@@ -225,7 +211,7 @@ def Sample(sampler, nstr, target_energies, target_GC, args, target_energy_eps = 
     while count < maxiterations:
         count += 1
         # get new sequences
-        if (args.debug):
+        if args.debug:
             print("# Weights: ", sampler.weights)
             print('# GC weight: ', sampler.gcweight)
         newsample, energies = sampler.dump_new_stack()
@@ -244,32 +230,34 @@ def Sample(sampler, nstr, target_energies, target_GC, args, target_energy_eps = 
             admissible = True
             if not (1-target_GC_eps <= GC/target_GC <= 1+target_GC_eps):
                 admissible = False
-            for t in range(0, nstr):
-                # add to eos np array in any case
-                eos[i,t] = energies[i][t]
-                # check if eps admissible
-                #print(eos[i,t], eos[i,t]/target_energies[t], target_energies[t])
-                if not (1-target_energy_eps <= eos[i,t]/target_energies[t] <= 1+target_energy_eps):
-                    admissible = False
+            if target_energies:
+                for t in range(0, nstr):
+                    # add to eos np array in any case
+                    eos[i,t] = energies[i][t]
+                    # check if eps admissible
+                    #print(eos[i,t], eos[i,t]/target_energies[t], target_energies[t])
+                    if not (1-target_energy_eps <= eos[i,t]/target_energies[t] <= 1+target_energy_eps):
+                        admissible = False
             if admissible:
                 #print('# is admissible:', eos[i,:], GC)
                 AdmissibleSample.append({'seq': s, 'energies': energies[i]})
         # update weights
-        for t in range(0, nstr):
-            e_mean = np.mean(eos[:,t])
-            if (args.debug):
-                print('# Energy mean: ', str(t), e_mean)
-            # exp version
-            sampler.weights[t] = sampler.weights[t] * (1.1**(e_mean-target_energies[t]))
-            # Yann old version without positive e_mean
-            #weights[t] = weights[t]*target_energies[t]/e_mean
+        if target_energies:
+            for t in range(0, nstr):
+                e_mean = np.mean(eos[:,t])
+                if args.debug:
+                    print('# Energy mean: ', str(t), e_mean)
+                # exp version
+                sampler.weights[t] = sampler.weights[t] * (1.1**(e_mean-target_energies[t]))
+                # Yann old version without positive e_mean
+                #weights[t] = weights[t]*target_energies[t]/e_mean
         # update gcweight
         GC_mean = np.mean(GC_freq)
-        if (args.debug):
-            print('# GC mean: ', GC_mean)
-            print('# Found for current Target: ', len(AdmissibleSample)/float(number), '%')
         sampler.gcweight = sampler.gcweight * target_GC/GC_mean
         # return if large enough
+        if args.debug:
+            print('# GC mean: ', GC_mean)
+            print('# Found addmissible Sequences: ', len(AdmissibleSample)/float(number), '%')
         if len(AdmissibleSample) >= number:
             break
     return AdmissibleSample
