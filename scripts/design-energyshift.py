@@ -70,7 +70,7 @@ def read_input(content):
 def main():
     parser = argparse.ArgumentParser(description='Design RNA molecules which adopt multiple structural states with specific energies using multi-dimensional Boltzmann sampling.',
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-i", "--input", type=argparse.FileType('r', 0), default="-", help="Read structures from input file. Default: read from stdin. Format must be dot-bracket structures, each per one line with a trailing line containing only a semi-colon.")
+    parser.add_argument("-i", "--input", type=argparse.FileType('r'), default="-", help="Read structures from input file. Default: read from stdin. Format must be dot-bracket structures, each per one line with a trailing line containing only a semi-colon.")
     parser.add_argument("-T", "--temperature", type=float, default=37.0, help='Temperature of the energy calculations.')
     parser.add_argument("-n", "--number", type=int, default=1000, help='Number of designs to generate')
     parser.add_argument("-m", "--model", type=str, default='stacking', help='Model for getting a new sequence: uniform, nussinov, basepairs, stacking')
@@ -113,7 +113,7 @@ def main():
     target_energies = {}
     if args.energies:
         for i, w in enumerate(args.energies.split(',')):
-            target_energies[i] = -1*float(w)
+            target_energies[i] = float(w)
     else:
         exit(1)
     if args.debug:
@@ -228,7 +228,7 @@ def Sample(sampler, nstr, target_energies, target_GC, args, target_energy_eps = 
             print('# GC weight: ', sampler.gcweight)
         newsample, energies = sampler.dump_new_stack()
 
-        # get average structue energies for newsample
+        # get average structure energies for newsample
         eos = np.zeros( (len(newsample), nstr) )
         GC_freq = []
 
