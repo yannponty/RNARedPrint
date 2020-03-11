@@ -6,13 +6,12 @@ import sys
 import os
 import re
 import timeit
-from collections import Counter
 from scipy import stats
 import numpy as np
 import RNA # ViennaRNA python bindings
 
 from Structure import RNAStructure
-from RNARedPrintSampler import RPSampler
+from RNARedPrintSampler import RPSampler,gccontent
 
 def read_input(content):
     '''
@@ -78,6 +77,7 @@ def main():
     parser.add_argument("-g", "--gc", type=float, default=0.5, help='Target GC content.')
     parser.add_argument("-t", "--tolerance", type=float, default=0.1, help='Tolerated relative deviation to target energies.')
     parser.add_argument("-c", "--gctolerance", type=float, default=0.05, help='Tolerated relative deviation to target GC content.')
+    parser.add_argument("--csv_output", default=False, action='store_true', help='Output csv format (with additional information)')
     parser.add_argument("-d", "--debug", default=False, action='store_true', help='Show debug information of library')
     args = parser.parse_args()
 
@@ -100,7 +100,8 @@ def main():
         print("# " + "\n# ".join(structures) + "\n# " + constraint)
 
     # print header for csv file
-    print(";".join(["sequence",
+    if args.csv_output:
+        print(";".join(["sequence",
                 "model",
                 "construction_time",
                 "sample_time"] +
@@ -142,13 +143,16 @@ def main():
             turner_energies.append(fc.eval_structure(s))
 
         # output sequence
-        print(a['seq'],
-            "\"" + args.model + "\"",
-            sampler.construction_time,
-            timeit.default_timer() - start, # sample time until now
-            ";".join([str(a['energies'][e]) for e in sorted(a['energies'].keys())]),
-            ";".join([str(e) for e in turner_energies]), sep=";"
-        )
+        if not args.csv_output:
+            print(a['seq'],"GC={:.2f}".format(gccontent(a['seq']))," ".join(["E{}={:.2f}".format(i+1,e) for (i,e) in enumerate(turner_energies)]))
+        else:
+            print(a['seq'],
+                "\"" + args.model + "\"",
+                sampler.construction_time,
+                timeit.default_timer() - start, # sample time until now
+                ";".join([str(a['energies'][e]) for e in sorted(a['energies'].keys())]),
+                ";".join([str(e) for e in turner_energies]), sep=";"
+            )
 
 def getEnergyOffsets(structures, args):
     sampler = RPSampler(structures, model=args.model, temperature=args.temperature, stacksize=1000, StopConstruct=True, debug=args.debug)
@@ -233,10 +237,7 @@ def Sample(sampler, nstr, target_energies, target_GC, args, target_energy_eps = 
         GC_freq = []
 
         for i, s in enumerate(newsample):
-            # count GC content
-            c = Counter(s)
-            sigma = 2.0 # one per nucleotide, laplace
-            GC = (c['G'] + c['C'] + sigma) / (len(s) + 2*sigma)
+            GC = gccontent(s)
             GC_freq.append(GC)
             # add if it is eps-admissible
             admissible = True

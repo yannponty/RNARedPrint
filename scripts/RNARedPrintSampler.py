@@ -25,6 +25,13 @@ import scipy.stats as stats
 
 from Structure import RNAStructure
 
+def gccontent(s):
+    from collections import Counter
+    # count GC content
+    c = Counter(s)
+    sigma = 2.0 # one per nucleotide, laplace
+    return (c['G'] + c['C'] + sigma) / (len(s) + 2*sigma)
+
 class RPSampler(object):
     '''
     RPSampler is a python wrapper for RNARedPrint and implements a similar interface to the RNAblueprint DependencyGraphMT object.

@@ -11,7 +11,7 @@ from scipy import stats
 import numpy as np
 
 import RNA # ViennaRNA python bindings
-from RNARedPrintSampler import RPSampler
+from RNARedPrintSampler import RPSampler,gccontent
 from Structure import RNAStructure
 
 def read_input(content):
@@ -76,6 +76,7 @@ def main():
     parser.add_argument("-g", "--gc", type=float, default=0.5, help='Target GC content.')
     parser.add_argument("-t", "--tolerance", type=float, default=0.10, help='Tolerated relative deviation to target energies.')
     parser.add_argument("-c", "--gctolerance", type=float, default=0.1, help='Tolerated relative deviation to target GC content.')
+    parser.add_argument("--csv_output", default=False, action='store_true', help='Output csv format (with additional information)')
     parser.add_argument("-d", "--debug", default=False, action='store_true', help='Show debug information of library')
     args = parser.parse_args()
     
@@ -95,14 +96,15 @@ def main():
         print("# " + "\n# ".join(structures) + "\n# " + constraint)
 
     # print header for csv file
-    print(";".join(["sequence",
-                "model",
-                "construction_time",
-                "sample_time"] +
-                ["redprint_energy"]*len(structures) +
-                ["turner_energy"]*len(structures)
-            )
-    )
+    if args.csv_output:
+        print(";".join(["sequence",
+                    "model",
+                    "construction_time",
+                    "sample_time"] +
+                    ["redprint_energy"]*len(structures) +
+                    ["turner_energy"]*len(structures)
+                )
+        )
     
     # time the sampling
     time_start = timeit.default_timer()
@@ -143,13 +145,16 @@ def main():
             turner_energies.append(fc.eval_structure(s))
         
         #print('$ simple model: ', a['energies'], ' viennaRNA: ', fc.eval_structure(str(i)))
-        print(a['seq'],
-                "\"" + args.model + "\"",
-                construction_time,
-                timeit.default_timer() - time_start,
-                ";".join([str(a['energies'][e]) for e in sorted(a['energies'].keys())]),
-                ";".join([str(e) for e in turner_energies]),
-                sep=";")
+        if not args.csv_output:
+            print(a['seq'],"GC={:.2f}".format(gccontent(a['seq']))," ".join(["E{}={:.2f}".format(i+1,e) for (i,e) in enumerate(turner_energies)]))
+        else:
+            print(a['seq'],
+                    "\"" + args.model + "\"",
+                    construction_time,
+                    timeit.default_timer() - time_start,
+                    ";".join([str(a['energies'][e]) for e in sorted(a['energies'].keys())]),
+                    ";".join([str(e) for e in turner_energies]),
+                    sep=";")
 
 def getTargetEnergy(structures, sample, args):
     nstr = len(structures)
