@@ -169,7 +169,7 @@ class RPSampler(object):
                 structures_cmd.append('"'+str(NoPK)+'"')
                 weights_cmd.append(weights[struct])
 
-        cmd = ['./RNARedPrint'] + structures_cmd + ['--num', str(number), '--model', str(self._modelarg), '-gcw', str(self._gcweight), '--weights', ','.join(map(str, weights_cmd))]
+        cmd = ['./RNARedPrint'] + structures_cmd + ['--num', str(number), '--model', str(self._modelarg), '--gcw', str(self._gcweight), '--weights', ','.join(map(str, weights_cmd))]
         #cmd=['ls']
         cmdstring = " ".join(cmd)
         if (self._debug):

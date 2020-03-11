@@ -25,7 +25,7 @@ using namespace std;
 
 #define NUM_OPTION "--num"
 #define WEIGHTS_OPTION "--weights"
-#define GC_WEIGHT_OPTION "-gcw"
+#define GC_WEIGHT_OPTION "--gcw"
 #define COUNT_OPTION "--count"
 #define DEBUG_OPTION "--debug"
 #define ENERGY_MODEL_OPTION "--model"
