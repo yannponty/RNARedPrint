@@ -557,8 +557,8 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
 {
     string tmpfilein = "./tmp.dgf";
     string tmpfileout = "./tmp.td";
-    string baselib = "../lib";
-    string basebin = "../../bin";
+    string baselib = "lib";
+    string basebin = "bin";
 
     TreeDecomposition * result = new TreeDecomposition();
 		

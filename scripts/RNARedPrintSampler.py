@@ -176,7 +176,7 @@ class RPSampler(object):
                 structures_cmd.append('"'+str(NoPK)+'"')
                 weights_cmd.append(weights[struct])
 
-        cmd = ['./RNARedPrint'] + structures_cmd + ['--num', str(number), '--model', str(self._modelarg), '--gcw', str(self._gcweight), '--weights', ','.join(map(str, weights_cmd))]
+        cmd = ['bin/RNARedPrint'] + structures_cmd + ['--num', str(number), '--model', str(self._modelarg), '--gcw', str(self._gcweight), '--weights', ','.join(map(str, weights_cmd))]
         #cmd=['ls']
         cmdstring = " ".join(cmd)
         if (self._debug):
@@ -185,7 +185,7 @@ class RPSampler(object):
         #stdin = '\n'.join(structures+[constraint])
         #p = sp.Popen(cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
         start = timeit.default_timer()
-        p = sp.Popen(cmdstring, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, shell=True, cwd=self._RedPrintFolder + "/bin/")
+        p = sp.Popen(cmdstring, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, shell=True, cwd=self._RedPrintFolder )
         #out, err = p.communicate(input=stdin)
         out, err = p.communicate(input=None)
         if err:
