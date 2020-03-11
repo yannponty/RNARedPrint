@@ -44,10 +44,10 @@ void usage(string cmd){
   cerr << "  "<<GC_WEIGHT_OPTION<<" w       - Assigns custom weight to each occurrence of GC, to control GC% (default 1.)"<<endl;
   //cerr << "  "<<TEMP_OPTION<<" t              - Sets the pseudotemperature (default 37.C)"<<endl;
   cerr << "  "<<ENERGY_MODEL_OPTION<<" m         - Set energy model used for stochastic sampling: "<<endl
-       << "        m = "<<COMPATIBLE_BP_MODEL<<": Uniform (Default);"<<endl
-       << "        m = "<<NUSSINOV_BP_MODEL<<": Nussinov (-3/-2/-1 for GC/AU/GU);"<<endl
-       << "        m = "<<FITTED_BP_MODEL<<": 6 parameters fitted model for (GC/AU/GU,inner/terminal) base-pairs"<<endl
-       << "        m = "<<FITTED_STACKING_PAIRS_MODEL<<": Fitted model for stacking pairs (no isolated base-pairs!)"<<endl;
+       << "        m = "<<COMPATIBLE_BP_MODEL<<": Uniform"<<endl
+       << "        m = "<<NUSSINOV_BP_MODEL<<": Nussinov (-3/-2/-1 for GC/AU/GU)"<<endl
+       << "        m = "<<FITTED_BP_MODEL<<": Base pair energy model (Default; distinguishs GC/AU/GU, inner/exterior)"<<endl
+       << "        m = "<<FITTED_STACKING_PAIRS_MODEL<<": Stacking model (no isolated base-pairs!)"<<endl;
   cerr << "  "<<HELP_OPTION<<"            - Display help message and exit"<<endl;
   exit(2);
 }
@@ -75,6 +75,8 @@ int main(int argc, char *argv[]){
   bool count_mode = false;
   unsigned int numSamples = DEFAULT_NUM_OPTION;
   int n = 0;
+
+  dGModel = FITTED_BP_MODEL; // set default model: base pair model
 
   for(int i = 1;i<argc;i++){
     if (argv[i][0]!= '-'){
