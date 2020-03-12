@@ -17,9 +17,9 @@ PRODUCED = $(OBJS) $(EXEC) $(TDLIB_OBJS)
 SUBDIRS = "./lib/2016-pace-challenge-master/" "../flow-cutter-pace16-master" \
 "../pace2016-master" "../pacechallenge-master"
 
-all: RNARedPrint
+all: $(EXEC)
 
-RNARedPrint: $(OBJS) $(MAIN_SOURCE) $(TDLIB_OBJS)
+$(EXEC): $(OBJS) $(MAIN_SOURCE) $(TDLIB_OBJS)
 	mkdir -p bin
 	$(COMPILER) $(OBJS) $(MAIN_SOURCE) -o $(EXEC)
 
