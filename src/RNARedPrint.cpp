@@ -8,8 +8,8 @@
 #include <stack>
 #include <float.h>
 #include <math.h>
-#include <stdexcept> 
-
+#include <stdexcept>
+#include <iomanip>
 
 using namespace std;
 
@@ -67,6 +67,16 @@ vector<double> parseWeights(string str)
              ss.ignore();
      }
      return res;
+}
+
+// @brief GC-contet
+// @param s DNA/RNA sequence string
+// @returns GC content
+// @note w/ pseudocounts (1 per nucleotide)
+double
+gccontent(const string s) {
+
+    return (2.0+std::count_if(s.begin(),s.end(),[] (char c) {return c=='C' || c=='G';}))/(4.0+s.length());
 }
 
 int main(int argc, char *argv[]){
@@ -155,7 +165,7 @@ int main(int argc, char *argv[]){
   tdFact = new TDLibFactory();
 
   TreeDecomposition * td = tdFact->makeTD(structures);
-  
+
   if (td->bags.size()==0){
     cerr << "Error: Tree decomposition software probably crashed!"<<endl;
     return EXIT_FAILURE;
@@ -181,7 +191,11 @@ int main(int argc, char *argv[]){
     }
     for (unsigned int i=0;i<seqs.size();i++){
         cout << seqs[i];
-        cout.flush();
+
+        cout << fixed << setprecision(2);
+
+        cout << " GC="<<gccontent(seqs[i]);
+
         for (unsigned int j=0;j<structures.size();j++){
             if (!structures[j]->checkSequence(seqs[i]))
             {
@@ -190,7 +204,6 @@ int main(int argc, char *argv[]){
             }
             else{
                 cout<<" E"<<(j+1)<<"="<<structures[j]->getEnergy(seqs[i]);
-                cout.flush();
             }
         }
         cout  << endl;
