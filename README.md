@@ -21,21 +21,23 @@ make
 ```
 
 ## Usage of the fundamental tool RNARedPrint
-To use RNARedPrint directly, change to the bin sub-directory of RNARedPrint
-```
-cd bin
-```
+We provide convenient high-level scripts for targeting specific energies
+and GC content or generating start structures for further multi-target
+design optimization using "Multi-dimensional Boltzmann Sampling" below. These scripts are based on the Boltzmann
+sampling engine implemented in the program RNARedPrint.
 
-Here is an example call to sample sequences 20 for three target secondory structures with weights 1,2,5 in the stacking energy model.
+To use this low-level tool RNARedPrint directly, first change to the RNARedPrsnt directory
+
+The following call samples 20 sequences for three target secondory structures with weights 1,2,5 in the stacking energy model.
 ```
-./RNARedPrint --model 3 --weights 1,2,5 -gcw 0.5 --num 20 "((((....))))" "((((..)))).." "..((((..))))" 
+bin/RNARedPrint --model 3 --weights 1,2,5 --gcw 0.5 --num 20 "((((....))))" "((((..)))).." "..((((..))))" 
 ```
 
 Note that the weights directly control the sample distribution; however, there is no easy relationship between multiple weights and the final target values (energies and GC-content). Therefore, weights are typically inferred automatically as demonstrated by the provided scripts.
 
 For detailed info on the available arameters, please see
 ```
-./RNARedPrint --help
+bin/RNARedPrint --help
 ```
 
 
@@ -57,16 +59,24 @@ If the scripts are located outside of the project folder, please specify a `REDP
 
  * Input: Secondary RNA structures in dot-bracket notation, every state in one line, last line needs to contain only `;` to stop listening for input.
  * Models: We support different models: basepairs, stacking and uniform.
- * Tolerance: During the sampling procedure we will only collect candidates, which are with the given tolerance range. This applies for the given target energy as well as for the target GC content. Tolerance `t` defines the range `1 + t <= current / target <= 1 + t`.
  * Targets: You can define the target energy (in kcal/mol) as well as the target GC content (in percent).
+ * Tolerance: During the sampling procedure we collect candidates, which stay in a certain range of tolerance around the target. This applies for the given target energy as well as for the target GC content. For GC content and simple energy, `t` defines the range `1 + t <= current / target <= 1 + t`. For the turner energy targets, the tolerance is given in kcal/mol energy difference.
 
-Example calls:
+Example calls from the installation directory:
+```
+echo -e ".((((((......)))))).((((...((((((...((((...(((.......)))..........(((....))).))))..))))))...))))....\n.((((((......)))))).((((...((((((...((((((.(((.......((........))..)))....)).))))..))))))...))))....\n......((.((((.(((((((.((.((...((((..((.....(((.......))).....))..)))).)).)))))))))..)).)).))........" | \
+  scripts/design-energyshift.py --energies="-40,-40,-20" --gc 0.7 --num 20 --tolerance=1
+
+echo -e "(((((((((((((....)))))))))))))\n(((((.....)))))(((((.....)))))" | \
+  scripts/design-multistate.py --num 20 --gc 0.6 --tolerance=0.5
+```
+
+One can as well call the script from other directories after setting the
+environment variable REDPRINT like
 ```
 export REDPRINT=</path/to/redprint/>
-echo -e ".((((((......)))))).((((...((((((...((((...(((.......)))..........(((....))).))))..))))))...))))....\n.((((((......)))))).((((...((((((...((((((.(((.......((........))..)))....)).))))..))))))...))))....\n......((.((((.(((((((.((.((...((((..((.....(((.......))).....))..)))).)).)))))))))..)).)).))........" | python scripts/design-energyshift.py -e 40,40,20
-
-echo -e "(((((((((((((....)))))))))))))\n(((((.....)))))(((((.....)))))" | python scripts/design-multistate.py -n 100
 ```
+
 
 For more information run the scripts with `--help`!
  
