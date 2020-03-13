@@ -14,6 +14,12 @@ import RNA # ViennaRNA python bindings
 from RNARedPrintSampler import RPSampler,gccontent
 from Structure import RNAStructure
 
+from itertools import islice
+def take(n, iterable):
+    "Return first n items of the iterable as a list"
+    return list(islice(iterable, n))
+
+
 def read_input(content):
     '''
     Reads some input and returns all neccessary information in the right container.
@@ -66,6 +72,13 @@ def read_input(content):
 
     return structures, constraint, sequence, additions
 
+def calc_turner_energies(seq,structures,temperature):
+    md = RNA.md()
+    md.temperature = temperature
+    fc = RNA.fold_compound(seq, md)
+    return [ fc.eval_structure(s) for s in structures ]
+
+
 def main():
     parser = argparse.ArgumentParser(description='Design RNA molecules which adopt multiple structural states with equal energies using multi-dimensional Boltzmann sampling.',
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
@@ -74,12 +87,18 @@ def main():
     parser.add_argument("-n", "--number", type=int, default=1000, help='Number of designs to generate')
     parser.add_argument("-m", "--model", type=str, default='basepairs', help='Model for getting a new sequence: uniform, nussinov, basepairs, stacking')
     parser.add_argument("-g", "--gc", type=float, default=0.5, help='Target GC content.')
-    parser.add_argument("-t", "--tolerance", type=float, default=0.10, help='Tolerated relative deviation to target energies.')
+    parser.add_argument("-t", "--simple_tolerance", type=float,
+            default=0.30, help='Tolerated relative deviation of simple energies.')
+    parser.add_argument("--tolerance", type=float, default=1,
+            help='Turner energy tolerance of energies (default: 1 kcal/mol, turn off by values <0)')
     parser.add_argument("-c", "--gctolerance", type=float, default=0.1, help='Tolerated relative deviation to target GC content.')
     parser.add_argument("--csv_output", default=False, action='store_true', help='Output csv format (with additional information)')
     parser.add_argument("-d", "--debug", default=False, action='store_true', help='Show debug information of library')
     args = parser.parse_args()
-    
+
+    if args.tolerance < 0:
+        args.tolerance = None
+
     if args.debug:
         print("# Options: number={0:d}, model={1:}, temperature={2:}".format(args.number, args.model, args.temperature))
 
@@ -105,7 +124,7 @@ def main():
                     ["turner_energy"]*len(structures)
                 )
         )
-    
+
     # time the sampling
     time_start = timeit.default_timer()
 
@@ -117,10 +136,15 @@ def main():
     sampler = RPSampler(structures, model=args.model, temperature=args.temperature, stacksize=stacksize, StopConstruct=True, debug=args.debug)
     construction_time = sampler.construction_time
     # get first sequence sample with energies with GC weight optimization and fixed high weights
-    initialsample = Sample(sampler, nstr, target_energies=None, target_GC=args.gc, number=1000, args=args)
+    initialsample = take(1000,
+                         Sample(sampler, nstr, target_energies=None,
+                                target_GC=args.gc, args=args))
 
     # get target energies
     target_energies = getTargetEnergy(structures, initialsample, args)
+
+    target_turner_energies = target_energies[:]
+
     if args.debug:
         print("# Turner Target Energies are: ", target_energies)
     # get energy offsets
@@ -132,18 +156,22 @@ def main():
         print("# Simple Target Energies are: ", target_energies)
 
     #sampler.weights = [1.0] * nstr
-    AdmissibleSample = Sample(sampler, nstr, target_energies=target_energies, target_GC=args.gc, target_energy_eps = args.tolerance, target_GC_eps=args.gctolerance, number=args.number, args=args)
+    AdmissibleSample = Sample(sampler, nstr,
+            target_energies=target_energies,
+            target_turner_energies=target_turner_energies, structures=structures, target_GC=args.gc,
+            simple_tolerance = args.simple_tolerance, tolerance = args.tolerance, target_GC_eps=args.gctolerance, args=args)
 
-    for count, a in enumerate(AdmissibleSample):
-        if count > args.number:
-            break
+    admissible_count = 0
+    for a in AdmissibleSample:
+        admissible_count += 1
+
         md = RNA.md()
         md.temperature = args.temperature
         fc = RNA.fold_compound(a['seq'], md)
         turner_energies = []
         for s in structures:
             turner_energies.append(fc.eval_structure(s))
-        
+
         #print('$ simple model: ', a['energies'], ' viennaRNA: ', fc.eval_structure(str(i)))
         if not args.csv_output:
             print(a['seq'],"GC={:.2f}".format(gccontent(a['seq']))," ".join(["E{}={:.2f}".format(i+1,e) for (i,e) in enumerate(turner_energies)]))
@@ -155,12 +183,18 @@ def main():
                     ";".join([str(a['energies'][e]) for e in sorted(a['energies'].keys())]),
                     ";".join([str(e) for e in turner_energies]),
                     sep=";")
+        # return if large enough
+        if args.debug:
+            print('# Found addmissible Sequences: ',
+                    admissible_count/float(args.number), '%')
+        if admissible_count >= args.number:
+            break
 
 def getTargetEnergy(structures, sample, args):
     nstr = len(structures)
     # find target energy_step
     energies = np.zeros( (len(sample), nstr) )
-    target_energies= {}
+    target_energies= list()
 
     for i, s in enumerate(sample):
         for t in range(0, nstr):
@@ -168,9 +202,8 @@ def getTargetEnergy(structures, sample, args):
             energies[i,t] = s['energies'][t]
 
     mean_target = np.mean(energies)
-    for t in range(0, nstr):
-        target_energies[t] = mean_target
-    return target_energies
+
+    return [mean_target] * nstr
 
 def getEnergyOffsets(structures, sample, args):
     nstr = len(structures)
@@ -203,19 +236,23 @@ def getEnergyOffsets(structures, sample, args):
         print('# Slopes and intercepts are: ', slope, intercept)
     return slope, intercept
 
-def Sample(sampler, nstr, target_GC, args, target_energies=None, target_energy_eps = 0.1, target_GC_eps=0.05, maxiterations=20, number=1000):
+def Sample(sampler, nstr, target_GC, args, *, target_energies = None,
+        target_turner_energies = None, structures = None, simple_tolerance = 0.1,
+        tolerance = None, target_GC_eps=0.05, maxiterations=20):
     '''If target energies is none, we will sample with the initial weights and just
     adopt the GC weight.
 
-    returns: list of dictionarys like: {'seq': sequence, 'energies': {structint: energy, structint: energy}}
+    returns: iterator of dictionarys like:
+      {'seq': sequence,
+       'energies': [ energy0, ...] ,
+       'turner_energies': [ turner_energy0, ]}
     '''
     # weights = [math.exp(1/((args.temperature + 273.15)*0.00198717))] * nstr
 
-    AdmissibleSample = []
-    # count iterations
-    count = 0
-    while count < maxiterations:
-        count += 1
+    # count empty iterations
+    empty_iteration_count = 0
+    while empty_iteration_count < maxiterations:
+        empty_iteration_count += 1
         # get new sequences
         if args.debug:
             print("# Weights: ", sampler.weights)
@@ -224,7 +261,8 @@ def Sample(sampler, nstr, target_GC, args, target_energies=None, target_energy_e
 
         # get average structue energies for newsample
         eos = np.zeros( (len(newsample), nstr) )
-        GC_freq = []
+        GC_freq = list()
+        turner_energies = list()
 
         for i, s in enumerate(newsample):
             # count GC content
@@ -232,21 +270,37 @@ def Sample(sampler, nstr, target_GC, args, target_energies=None, target_energy_e
             sigma = 2.0 # one per nucleotide, laplace
             GC = (c['G'] + c['C'] + sigma) / (len(s) + 2*sigma)
             GC_freq.append(GC)
+
             # add if it is eps-admissible
             admissible = True
             if not (1-target_GC_eps <= GC/target_GC <= 1+target_GC_eps):
                 admissible = False
+
             if target_energies:
                 for t in range(0, nstr):
                     # add to eos np array in any case
                     eos[i,t] = energies[i][t]
                     # check if eps admissible
                     #print(eos[i,t], eos[i,t]/target_energies[t], target_energies[t])
-                    if not (1-target_energy_eps <= eos[i,t]/target_energies[t] <= 1+target_energy_eps):
+                    if not (1-simple_tolerance <= eos[i,t]/target_energies[t] <= 1+simple_tolerance):
                         admissible = False
+
+            te = None
+            if admissible and structures is not None:
+                te = calc_turner_energies(s,structures,args.temperature)
+            turner_energies.append( te )
+
+            if admissible and tolerance is not None:
+                for t in range(0, nstr):
+                    if abs( turner_energies[i][t] - target_turner_energies[t] ) > tolerance:
+                        admissible = False
+
             if admissible:
                 #print('# is admissible:', eos[i,:], GC)
-                AdmissibleSample.append({'seq': s, 'energies': energies[i]})
+                yield {'seq': s, 'energies': energies[i],
+                        'turner_energies': turner_energies[i]}
+                empty_iteration_count = 0
+
         # update weights
         if target_energies:
             for t in range(0, nstr):
@@ -260,13 +314,8 @@ def Sample(sampler, nstr, target_GC, args, target_energies=None, target_energy_e
         # update gcweight
         GC_mean = np.mean(GC_freq)
         sampler.gcweight = sampler.gcweight * target_GC/GC_mean
-        # return if large enough
         if args.debug:
             print('# GC mean: ', GC_mean)
-            print('# Found addmissible Sequences: ', len(AdmissibleSample)/float(number), '%')
-        if len(AdmissibleSample) >= number:
-            break
-    return AdmissibleSample
 
 if __name__ == "__main__":
     main()
