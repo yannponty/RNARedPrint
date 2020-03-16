@@ -23,6 +23,7 @@ using namespace std;
 #define DEFAULT_NUM_OPTION 10
 
 
+#define VERSION_OPTION "--version"
 #define NUM_OPTION "--num"
 #define WEIGHTS_OPTION "--weights"
 #define GC_WEIGHT_OPTION "--gcw"
@@ -48,8 +49,15 @@ void usage(string cmd){
        << "        m = "<<NUSSINOV_BP_MODEL<<": Nussinov (-3/-2/-1 for GC/AU/GU)"<<endl
        << "        m = "<<FITTED_BP_MODEL<<": Base pair energy model (Default; distinguishs GC/AU/GU, inner/exterior)"<<endl
        << "        m = "<<FITTED_STACKING_PAIRS_MODEL<<": Stacking model (no isolated base-pairs!)"<<endl;
+  cerr << "  "<<VERSION_OPTION<<"            - Show version and exit"<<endl;
   cerr << "  "<<HELP_OPTION<<"            - Display help message and exit"<<endl;
   exit(2);
+}
+
+void
+version() {
+  cout << "RNARedPrint 0.3" << endl;
+  exit(0);
 }
 
 vector<double> parseWeights(string str)
@@ -100,7 +108,10 @@ int main(int argc, char *argv[]){
       n = max(n,nn);
     }
     else{
-      if (string(argv[i])==NUM_OPTION){
+      if (string(argv[i])==VERSION_OPTION){
+        version();
+      }
+      else if (string(argv[i])==NUM_OPTION){
         i++;
         numSamples = atoi(argv[i]);
       }

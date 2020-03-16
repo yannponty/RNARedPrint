@@ -74,6 +74,7 @@ def calc_turner_energies(seq,structures,temperature):
 def main():
     parser = argparse.ArgumentParser(description='Design RNA molecules which adopt multiple structural states with specific energies using multi-dimensional Boltzmann sampling.',
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--version', action='version', version='%(prog)s of RNARedPrint 0.3')
     parser.add_argument("-i", "--input", type=argparse.FileType('r'), default=sys.stdin, help="Read structures from input file. Default: read from stdin. Format must be dot-bracket structures, each per one line with a trailing line containing only a semi-colon.")
     parser.add_argument("-T", "--temperature", type=float, default=37.0, help='Temperature of the energy calculations.')
     parser.add_argument("-n", "--number", type=int, default=1000, help='Number of designs to generate')
