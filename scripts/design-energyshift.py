@@ -74,7 +74,7 @@ def calc_turner_energies(seq,structures,temperature):
 def main():
     parser = argparse.ArgumentParser(description='Design RNA molecules which adopt multiple structural states with specific energies using multi-dimensional Boltzmann sampling.',
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-i", "--input", type=argparse.FileType('r'), default="-", help="Read structures from input file. Default: read from stdin. Format must be dot-bracket structures, each per one line with a trailing line containing only a semi-colon.")
+    parser.add_argument("-i", "--input", type=argparse.FileType('r'), default=sys.stdin, help="Read structures from input file. Default: read from stdin. Format must be dot-bracket structures, each per one line with a trailing line containing only a semi-colon.")
     parser.add_argument("-T", "--temperature", type=float, default=37.0, help='Temperature of the energy calculations.')
     parser.add_argument("-n", "--number", type=int, default=1000, help='Number of designs to generate')
     parser.add_argument("-m", "--model", type=str, default='basepairs', help='Model for getting a new sequence: uniform, nussinov, basepairs, stacking')
@@ -96,7 +96,7 @@ def main():
         print("# Options: number={0:d}, model={1:}, temperature={2:}".format(args.number, args.model, args.temperature))
     # define structures
     data = ''
-    for line in sys.stdin:
+    for line in args.input:
         data = data + '\n' + line
     (structures, constraint, start_sequence, _) = read_input(data)
 
