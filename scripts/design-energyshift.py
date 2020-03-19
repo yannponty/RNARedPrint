@@ -10,7 +10,7 @@ from scipy import stats
 import numpy as np
 import RNA # ViennaRNA python bindings
 
-from Structure import RNAStructure
+from RNARedPrintStructure import RNAStructure
 from RNARedPrintSampler import RPSampler,gccontent
 
 def read_input(content):

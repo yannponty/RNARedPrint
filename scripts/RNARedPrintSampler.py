@@ -23,7 +23,7 @@ import subprocess as sp
 import numpy as np
 import scipy.stats as stats
 
-from Structure import RNAStructure
+from RNARedPrintStructure import RNAStructure
 
 def gccontent(s):
     from collections import Counter

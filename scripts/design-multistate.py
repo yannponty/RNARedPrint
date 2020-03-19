@@ -12,7 +12,7 @@ import numpy as np
 
 import RNA # ViennaRNA python bindings
 from RNARedPrintSampler import RPSampler,gccontent
-from Structure import RNAStructure
+from RNARedPrintStructure import RNAStructure
 
 from itertools import islice
 def take(n, iterable):
