@@ -232,7 +232,6 @@ class TreeDecomposition{
      */
     void addLoopsRec(Bag * b, vector<Loop* > & structures);
 
-
   public:
     vector<Bag*> bags;  
     vector<int> roots;
@@ -299,8 +298,18 @@ class TreeDecompositionFactory{
  */
 class TDLibFactory : public TreeDecompositionFactory{
   private:
-  	void transFileFormat(string path);
+    /**
+     * prefix path for tree decomposition libraries and tools
+     */
+    string prefix_path_;
+
+    void transFileFormat(string path);
   public:
+
+    TDLibFactory(const string &prefix_path="") {
+        prefix_path_ = prefix_path;
+    }
+
     TreeDecomposition* makeTD(vector<SecondaryStructure*>& v);
     
 };
