@@ -1,0 +1,39 @@
+{% set version="0.3" %}
+{% set vrnaversion="2.4" %}
+
+package:
+  name: redprint
+  version: {{ version }}
+
+about:
+  home: https://github.com/yannponty/RNARedPrint
+  license: GPL
+  license_file: COPYING
+  summary: Tree-decomposition based dynamic programming algorithm for multiple target RNA design
+
+build:
+  number: 0
+
+source:
+  url: "https://github.com/yannponty/RNARedPrint/archive/v{{ version }}.tar.gz"
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+    - java-jdk
+  host:
+    - viennarna >= {{ vrnaversion }}
+    - python
+  run:
+    - viennarna >= {{ vrnaversion }}
+    - python
+    - numpy
+    - scipy
+
+test:
+  commands:
+    - redprint --version
+
+extra:
+  identifiers:
+    - doi:10.1186/s12859-019-2784-7
