@@ -2,7 +2,7 @@ MAIN_SOURCE = src/RNARedPrint.cpp
 SOURCES = src/DP.cpp  src/Nucleotide.cpp  src/RNAStructure.cpp  src/TreeDecomposition.cpp  src/Utils.cpp src/EnergyModels.cpp
 
 OBJS = $(SOURCES:.cpp=.o)
-EXEC = bin/RNARedPrint
+EXEC = src/RNARedPrint
 
 #COMPILER = g++ -g -static-libgcc -static-libstdc++
 COMPILER = g++ -O2 -g -std=c++11 -DNDEBUG
@@ -19,11 +19,11 @@ SUBDIRS = "./lib/2016-pace-challenge-master/" "../flow-cutter-pace16-master" \
 
 # default installation prefix
 PREFIX=/usr/local
+ABS_PREFIX=$(realpath $(PREFIX))
 
 all: $(EXEC)
 
 $(EXEC): $(OBJS) $(MAIN_SOURCE) $(TDLIB_OBJS)
-	mkdir -p bin
 	$(COMPILER) $(OBJS) $(MAIN_SOURCE) -o $(EXEC)
 
 %.o: %.cpp
@@ -39,16 +39,16 @@ subsystem:
 	done
 
 install: all
+	install -d $(PREFIX)/bin
 	install -d $(PREFIX)/share/RNARedPrint/lib
 	cp -r lib $(PREFIX)/share/RNARedPrint
-	install -d $(PREFIX)/bin/.bin
-	install bin/RNARedPrint $(PREFIX)/bin/.bin/RNARedPrint
+	install src/RNARedPrint $(PREFIX)/share/RNARedPrint/RNARedPrint
 	install scripts/design-energyshift.py -D $(PREFIX)/bin
 	install scripts/design-multistate.py -D $(PREFIX)/bin
 	install --mode 644 scripts/RNARedPrintStructure.py -D $(PREFIX)/bin
 	install --mode 644 scripts/RNARedPrintSampler.py -D $(PREFIX)/bin
-	echo '#!/bin/sh\n$(PREFIX)/bin/.bin/RNARedPrint $$* --prefix $(PREFIX)/share/RNARedPrint/' > $(PREFIX)/bin/RNARedPrint
-	chmod 755 $(PREFIX)/bin/RNARedPrint
+	echo '#!/bin/sh\n$(ABS_PREFIX)/share/RNARedPrint/RNARedPrint $$* --prefix $(ABS_PREFIX)/share/RNARedPrint/' > $(PREFIX)/bin/RNARedPrint
+	chmod 755 $(ABS_PREFIX)/bin/RNARedPrint
 
 clean: 
 	rm -f $(PRODUCED) 

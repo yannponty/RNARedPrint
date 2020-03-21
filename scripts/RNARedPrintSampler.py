@@ -58,7 +58,7 @@ class RPSampler(object):
         self.weights = weights
         self._debug = debug
 
-        self._bindir = os.path.join(os.path.dirname(os.path.abspath(__file__)),"../bin")
+        self._bindir = os.path.dirname(os.path.abspath(__file__))
 
         # copy RNARedprint binary to temp toDirectory for multithread
         self._make_output_folder()
