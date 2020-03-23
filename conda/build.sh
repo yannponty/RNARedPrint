@@ -1,4 +1,4 @@
 #!/bin/sh
 
 make && \
-make install
+make install PREFIX=${CONDA_PREFIX}

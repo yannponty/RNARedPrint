@@ -1,4 +1,4 @@
-{% set version="0.3" %}
+{% set version="0.3test" %}
 {% set vrnaversion="2.4" %}
 
 package:
@@ -8,7 +8,7 @@ package:
 about:
   home: https://github.com/yannponty/RNARedPrint
   license: GPL
-  license_file: COPYING
+  license_file: LICENSE
   summary: Tree-decomposition based dynamic programming algorithm for multiple target RNA design
 
 build:
@@ -22,17 +22,20 @@ requirements:
     - {{ compiler('cxx') }}
     - java-jdk
   host:
-    - viennarna >= {{ vrnaversion }}
+    - viennarna >={{ vrnaversion }}
     - python
   run:
-    - viennarna >= {{ vrnaversion }}
+    - viennarna >={{ vrnaversion }}
     - python
     - numpy
     - scipy
 
 test:
   commands:
-    - redprint --version
+    - which RNARedPrint
+    - RNARedPrint --version
+    - design-energyshift.py --help
+    - design-multistate.py --help
 
 extra:
   identifiers:
