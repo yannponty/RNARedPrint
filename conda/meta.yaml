@@ -2,7 +2,7 @@
 {% set vrnaversion="2.4" %}
 
 package:
-  name: redprint
+  name: rnaredprint
   version: {{ version }}
 
 about:
@@ -32,7 +32,6 @@ requirements:
 
 test:
   commands:
-    - which RNARedPrint
     - RNARedPrint --version
     - design-energyshift.py --help
     - design-multistate.py --help
