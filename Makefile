@@ -4,8 +4,8 @@ SOURCES = src/DP.cpp  src/Nucleotide.cpp  src/RNAStructure.cpp  src/TreeDecompos
 OBJS = $(SOURCES:.cpp=.o)
 EXEC = src/RNARedPrint
 
-#COMPILER = g++ -g -static-libgcc -static-libstdc++
-COMPILER = g++ -O2 -g -std=c++11 -DNDEBUG
+#COMPILER = $(CXX) -g -static-libgcc -static-libstdc++
+COMPILER = $(CXX) -O2 -g -std=c++11 -DNDEBUG
 JAVA_COMPILER = javac
 
 TDLIB_SOURCES = lib/libtw/TD.java
