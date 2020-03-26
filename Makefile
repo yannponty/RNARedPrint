@@ -43,11 +43,11 @@ install: all
 	install -d $(PREFIX)/share/RNARedPrint/lib/treewidth-java
 	cp -r lib/treewidth-java $(PREFIX)/share/RNARedPrint/lib
 	install src/RNARedPrint $(PREFIX)/share/RNARedPrint/RNARedPrint
-	install scripts/design-energyshift.py -D $(PREFIX)/bin
-	install scripts/design-multistate.py -D $(PREFIX)/bin
-	install scripts/RNARedPrint -D $(PREFIX)/bin
-	install --mode 644 scripts/RNARedPrintStructure.py -D $(PREFIX)/bin
-	install --mode 644 scripts/RNARedPrintSampler.py -D $(PREFIX)/bin
+	install scripts/design-energyshift.py $(PREFIX)/bin
+	install scripts/design-multistate.py $(PREFIX)/bin
+	install scripts/RNARedPrint $(PREFIX)/bin
+	install --mode 644 scripts/RNARedPrintStructure.py $(PREFIX)/bin
+	install --mode 644 scripts/RNARedPrintSampler.py $(PREFIX)/bin
 
 clean: 
 	rm -f $(PRODUCED) 
