@@ -19,7 +19,6 @@ SUBDIRS = "./lib/2016-pace-challenge-master/" "../flow-cutter-pace16-master" \
 
 # default installation prefix
 PREFIX=/usr/local
-ABS_PREFIX=$(realpath $(PREFIX))
 
 all: $(EXEC)
 
@@ -46,10 +45,9 @@ install: all
 	install src/RNARedPrint $(PREFIX)/share/RNARedPrint/RNARedPrint
 	install scripts/design-energyshift.py -D $(PREFIX)/bin
 	install scripts/design-multistate.py -D $(PREFIX)/bin
+	install scripts/RNARedPrint -D $(PREFIX)/bin
 	install --mode 644 scripts/RNARedPrintStructure.py -D $(PREFIX)/bin
 	install --mode 644 scripts/RNARedPrintSampler.py -D $(PREFIX)/bin
-	echo '#!/bin/sh\n$(ABS_PREFIX)/share/RNARedPrint/RNARedPrint $$* --prefix $(ABS_PREFIX)/share/RNARedPrint/' > $(PREFIX)/bin/RNARedPrint
-	chmod 755 $(ABS_PREFIX)/bin/RNARedPrint
 
 clean: 
 	rm -f $(PRODUCED) 
