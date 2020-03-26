@@ -46,8 +46,10 @@ install: all
 	install scripts/design-energyshift.py $(PREFIX)/bin
 	install scripts/design-multistate.py $(PREFIX)/bin
 	install scripts/RNARedPrint $(PREFIX)/bin
-	install --mode 644 scripts/RNARedPrintStructure.py $(PREFIX)/bin
-	install --mode 644 scripts/RNARedPrintSampler.py $(PREFIX)/bin
+	install scripts/RNARedPrintStructure.py $(PREFIX)/bin
+	chmod 644 $(PREFIX)/bin/RNARedPrintStructure.py
+	install scripts/RNARedPrintSampler.py $(PREFIX)/bin
+	chmod 644 $(PREFIX)/bin/RNARedPrintSampler.py
 
 clean: 
 	rm -f $(PRODUCED) 
