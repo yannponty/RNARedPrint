@@ -23,7 +23,8 @@ ABS_PREFIX=$(realpath $(PREFIX))
 
 all: $(EXEC)
 
-$(EXEC): $(OBJS) $(MAIN_SOURCE) $(TDLIB_OBJS)
+# $(TDLIB_OBJS)
+$(EXEC): $(OBJS) $(MAIN_SOURCE)
 	$(COMPILER) $(OBJS) $(MAIN_SOURCE) -o $(EXEC)
 
 %.o: %.cpp
@@ -40,8 +41,8 @@ subsystem:
 
 install: all
 	install -d $(PREFIX)/bin
-	install -d $(PREFIX)/share/RNARedPrint/lib
-	cp -r lib $(PREFIX)/share/RNARedPrint
+	install -d $(PREFIX)/share/RNARedPrint/lib/treewidth-java
+	cp -r lib/treewidth-java $(PREFIX)/share/RNARedPrint/lib
 	install src/RNARedPrint $(PREFIX)/share/RNARedPrint/RNARedPrint
 	install scripts/design-energyshift.py -D $(PREFIX)/bin
 	install scripts/design-multistate.py -D $(PREFIX)/bin
