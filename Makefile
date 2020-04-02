@@ -1,4 +1,4 @@
-MAIN_SOURCE = src/RNARedPrint.cpp  
+MAIN_SOURCE = src/RNARedPrint.cpp
 SOURCES = src/DP.cpp  src/Nucleotide.cpp  src/RNAStructure.cpp  src/TreeDecomposition.cpp  src/Utils.cpp src/EnergyModels.cpp
 
 OBJS = $(SOURCES:.cpp=.o)
@@ -45,11 +45,12 @@ install: all
 	install src/RNARedPrint $(PREFIX)/share/RNARedPrint/RNARedPrint
 	install scripts/design-energyshift.py $(PREFIX)/bin
 	install scripts/design-multistate.py $(PREFIX)/bin
+	install scripts/calcprobs.py $(PREFIX)/bin
 	install scripts/RNARedPrint $(PREFIX)/bin
 	install scripts/RNARedPrintStructure.py $(PREFIX)/bin
 	chmod 644 $(PREFIX)/bin/RNARedPrintStructure.py
 	install scripts/RNARedPrintSampler.py $(PREFIX)/bin
 	chmod 644 $(PREFIX)/bin/RNARedPrintSampler.py
 
-clean: 
-	rm -f $(PRODUCED) 
+clean:
+	rm -f $(PRODUCED)
