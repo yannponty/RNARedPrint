@@ -1,11 +1,11 @@
-MAIN_SOURCE = src/RNARedPrint.cpp  
+MAIN_SOURCE = src/RNARedPrint.cpp
 SOURCES = src/DP.cpp  src/Nucleotide.cpp  src/RNAStructure.cpp  src/TreeDecomposition.cpp  src/Utils.cpp src/EnergyModels.cpp
 
 OBJS = $(SOURCES:.cpp=.o)
-EXEC = bin/RNARedPrint
+EXEC = src/RNARedPrint
 
-#COMPILER = g++ -g -static-libgcc -static-libstdc++
-COMPILER = g++ -O2 -g -std=c++11 -DNDEBUG
+#COMPILER = $(CXX) -g -static-libgcc -static-libstdc++
+COMPILER = $(CXX) -O2 -g -std=c++11 -DNDEBUG
 JAVA_COMPILER = javac
 
 TDLIB_SOURCES = lib/libtw/TD.java
@@ -17,10 +17,13 @@ PRODUCED = $(OBJS) $(EXEC) $(TDLIB_OBJS)
 SUBDIRS = "./lib/2016-pace-challenge-master/" "../flow-cutter-pace16-master" \
 "../pace2016-master" "../pacechallenge-master"
 
+# default installation prefix
+PREFIX=/usr/local
+
 all: $(EXEC)
 
-$(EXEC): $(OBJS) $(MAIN_SOURCE) $(TDLIB_OBJS)
-	mkdir -p bin
+# $(TDLIB_OBJS)
+$(EXEC): $(OBJS) $(MAIN_SOURCE)
 	$(COMPILER) $(OBJS) $(MAIN_SOURCE) -o $(EXEC)
 
 %.o: %.cpp
@@ -35,6 +38,19 @@ subsystem:
 		cd $$subdir && $(MAKE) all; \
 	done
 
-clean: 
-	rm -f $(PRODUCED) 
+install: all
+	install -d $(PREFIX)/bin
+	install -d $(PREFIX)/share/RNARedPrint/lib/treewidth-java
+	cp -r lib/treewidth-java $(PREFIX)/share/RNARedPrint/lib
+	install src/RNARedPrint $(PREFIX)/share/RNARedPrint/RNARedPrint
+	install scripts/design-energyshift.py $(PREFIX)/bin
+	install scripts/design-multistate.py $(PREFIX)/bin
+	install scripts/calcprobs.py $(PREFIX)/bin
+	install scripts/RNARedPrint $(PREFIX)/bin
+	install scripts/RNARedPrintStructure.py $(PREFIX)/bin
+	chmod 644 $(PREFIX)/bin/RNARedPrintStructure.py
+	install scripts/RNARedPrintSampler.py $(PREFIX)/bin
+	chmod 644 $(PREFIX)/bin/RNARedPrintSampler.py
 
+clean:
+	rm -f $(PRODUCED)

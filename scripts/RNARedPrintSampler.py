@@ -23,7 +23,7 @@ import subprocess as sp
 import numpy as np
 import scipy.stats as stats
 
-from Structure import RNAStructure
+from RNARedPrintStructure import RNAStructure
 
 def gccontent(s):
     from collections import Counter
@@ -44,10 +44,9 @@ class RPSampler(object):
     :param temperature: Temperature for the folding predictions (default: 37.0 degree celsius)
     :param stacksize: Size of one sequence sampling batch (default: 1000 sequences)
     :param StopConstruct: Bool specifying if we want to benchmark the construction time. Measured time can be obtained from construction_time after construction (default: False)
-    :param RedPrintFolder: Location of the RNARedPrint project folder (default: './RNARedPrint/')
     :param debug: Bool to print debug statements (default: False)
     '''
-    def __init__(self, structures, constraint='', model='nussinov', weights=[], gcweight=1, temperature=37.0, stacksize=1000, StopConstruct=False, RedPrintFolder = None, debug=False):
+    def __init__(self, structures, constraint='', model='nussinov', weights=[], gcweight=1, temperature=37.0, stacksize=1000, StopConstruct=False, debug=False):
         self._structures = structures
         self._constraint = constraint
         self.model = model
@@ -59,31 +58,17 @@ class RPSampler(object):
         self.weights = weights
         self._debug = debug
 
-        if not RedPrintFolder:
-            RedPrintFolder = self._get_path('')
-            if not RedPrintFolder:
-                RedPrintFolder = os.path.join(os.path.dirname(os.path.abspath(__file__)),"../../RNARedPrint/")
+        self._bindir = os.path.dirname(os.path.abspath(__file__))
+
         # copy RNARedprint binary to temp toDirectory for multithread
-        self._copy_RNAredprint_folder(RedPrintFolder)
+        self._make_output_folder()
 
         # call RNAredprint to get construction time
         if StopConstruct:
             self._call_RNAredprint(0)
 
     def __del__(self):
-         shutil.rmtree(self._RedPrintFolder, ignore_errors=True)
-
-    def _get_path(self, subfolder):
-        '''
-        Try to detect the RNARedPrint project folder location
-
-        :param subfolder: string specifying a subfolder, e.g. 'bin/'
-        :return: string with the complete project path
-        '''
-        if 'REDPRINT' in os.environ:
-            return os.path.join(os.environ['REDPRINT'], subfolder)
-        else:
-            return subfolder
+         shutil.rmtree(self._outputFolder, ignore_errors=True)
 
     @property
     def model(self):
@@ -93,6 +78,7 @@ class RPSampler(object):
         :return: string, can be 'uniform',  'nussinov', 'basepairs' or 'stacking'
         '''
         return self._model
+
     @model.setter
     def model(self, value):
         modelarg = None
@@ -153,12 +139,10 @@ class RPSampler(object):
         newseqs, energies = self._call_RNAredprint(number=stacksize)
         return newseqs, energies
 
-    def _copy_RNAredprint_folder(self, RedPrintFolder):
+    def _make_output_folder(self):
         # copy subdirectory example
-        fromDirectory = RedPrintFolder
-        toDirectory = "/tmp/RNARedPrint-" + str(uuid.uuid4())
-        self._RedPrintFolder = toDirectory
-        copy_tree(fromDirectory, toDirectory)
+        self._outputFolder = "/tmp/RNARedPrint-" + str(uuid.uuid4())
+        os.mkdir(self._outputFolder)
 
     def _call_RNAredprint(self, number=1000):
         # resolve PKs
@@ -176,7 +160,7 @@ class RPSampler(object):
                 structures_cmd.append('"'+str(NoPK)+'"')
                 weights_cmd.append(weights[struct])
 
-        cmd = ['bin/RNARedPrint'] + structures_cmd + ['--num', str(number), '--model', str(self._modelarg), '--gcw', str(self._gcweight), '--weights', ','.join(map(str, weights_cmd))]
+        cmd = [os.path.join(self._bindir,'RNARedPrint')] + structures_cmd + ['--num', str(number), '--model', str(self._modelarg), '--gcw', str(self._gcweight), '--weights', ','.join(map(str, weights_cmd))]
         #cmd=['ls']
         cmdstring = " ".join(cmd)
         if (self._debug):
@@ -185,7 +169,7 @@ class RPSampler(object):
         #stdin = '\n'.join(structures+[constraint])
         #p = sp.Popen(cmd, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE)
         start = timeit.default_timer()
-        p = sp.Popen(cmdstring, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, shell=True, cwd=self._RedPrintFolder )
+        p = sp.Popen(cmdstring, stdin=sp.PIPE, stdout=sp.PIPE, stderr=sp.PIPE, shell=True, cwd=self._outputFolder )
         #out, err = p.communicate(input=stdin)
         out, err = p.communicate(input=None)
         if err:

@@ -23,6 +23,7 @@ using namespace std;
 #define DEFAULT_NUM_OPTION 10
 
 
+#define VERSION_OPTION "--version"
 #define NUM_OPTION "--num"
 #define WEIGHTS_OPTION "--weights"
 #define GC_WEIGHT_OPTION "--gcw"
@@ -31,6 +32,7 @@ using namespace std;
 #define ENERGY_MODEL_OPTION "--model"
 #define HELP_OPTION "--help"
 #define TEMP_OPTION "-T"
+#define PREFIX_OPTION "--prefix"
 
 
 void usage(string cmd){
@@ -48,8 +50,16 @@ void usage(string cmd){
        << "        m = "<<NUSSINOV_BP_MODEL<<": Nussinov (-3/-2/-1 for GC/AU/GU)"<<endl
        << "        m = "<<FITTED_BP_MODEL<<": Base pair energy model (Default; distinguishs GC/AU/GU, inner/exterior)"<<endl
        << "        m = "<<FITTED_STACKING_PAIRS_MODEL<<": Stacking model (no isolated base-pairs!)"<<endl;
-  cerr << "  "<<HELP_OPTION<<"            - Display help message and exit"<<endl;
+  cerr << "  "<<PREFIX_OPTION  <<"            - Prefix path for locating the TD libraries"<<endl;
+  cerr << "  "<<VERSION_OPTION <<"            - Show version and exit"<<endl;
+  cerr << "  "<<HELP_OPTION    <<"            - Display help message and exit"<<endl;
   exit(2);
+}
+
+void
+version() {
+  cout << "RNARedPrint 0.3" << endl;
+  exit(0);
 }
 
 vector<double> parseWeights(string str)
@@ -86,6 +96,8 @@ int main(int argc, char *argv[]){
   unsigned int numSamples = DEFAULT_NUM_OPTION;
   int n = 0;
 
+  string prefix_path="";
+
   dGModel = FITTED_BP_MODEL; // set default model: base pair model
 
   for(int i = 1;i<argc;i++){
@@ -100,7 +112,10 @@ int main(int argc, char *argv[]){
       n = max(n,nn);
     }
     else{
-      if (string(argv[i])==NUM_OPTION){
+      if (string(argv[i])==VERSION_OPTION){
+        version();
+      }
+      else if (string(argv[i])==NUM_OPTION){
         i++;
         numSamples = atoi(argv[i]);
       }
@@ -123,6 +138,10 @@ int main(int argc, char *argv[]){
       else if (string(argv[i])==TEMP_OPTION){
         i++;
         TEMP = atof(argv[i]);
+      }
+      else if (string(argv[i])==PREFIX_OPTION){
+          i++;
+          prefix_path = argv[i];
       }
       else if (string(argv[i])==HELP_OPTION){
           usage(argv[0]);
@@ -150,7 +169,16 @@ int main(int argc, char *argv[]){
       usage(string(argv[0]));
   }
 
-  TreeDecompositionFactory * tdFact;
+  if (prefix_path=="") {
+    if (char *p = getenv("RNAREDPRINT_PATH")) {
+        prefix_path = p;
+    }
+  }
+
+
+  // To be replaced by alternative implementations
+  TreeDecompositionFactory * tdFact = new TDLibFactory(prefix_path);
+
   bool stackedModel = (dGModel==FITTED_STACKING_PAIRS_MODEL);
 
   for (unsigned int i=0;i<structures.size();i++){
@@ -160,9 +188,6 @@ int main(int argc, char *argv[]){
         usage(string(argv[0]));
     }
   }
-
-  // To be replaced by alternative implementations
-  tdFact = new TDLibFactory();
 
   TreeDecomposition * td = tdFact->makeTD(structures);
 

@@ -1,0 +1,21 @@
+v0.3pre
+  the version for the Bookchapter on RNARedPrint
+  * bug fix of input argument in scripts
+  * version arguments
+
+v0.2 (Mar 13 2020)
+  * updated command line interface with new defaults
+  * consistent, human readable output of low-level tool and high-level scripts
+  * scripts target Turner energies (internally based on targeting simple energies)
+  * machine readable output and targeting of simple energies still available via options
+
+v0.1 Original version (Feb 21 2019)
+  the version used for the original publication describing the implemented
+  algorithms
+
+  implements
+    * Boltzmann sampling in RNARedPrint
+    * multi-dimensional Boltzmann sampling for
+       - targeting simple energies (approximating Turner energies)
+       - and GC content
+    * start structure generation for multi-target negative design

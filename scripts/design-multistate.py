@@ -12,7 +12,7 @@ import numpy as np
 
 import RNA # ViennaRNA python bindings
 from RNARedPrintSampler import RPSampler,gccontent
-from Structure import RNAStructure
+from RNARedPrintStructure import RNAStructure
 
 from itertools import islice
 def take(n, iterable):
@@ -82,10 +82,12 @@ def calc_turner_energies(seq,structures,temperature):
 def main():
     parser = argparse.ArgumentParser(description='Design RNA molecules which adopt multiple structural states with equal energies using multi-dimensional Boltzmann sampling.',
                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-i", "--input", type=argparse.FileType('r', 0), default="-", help="Read structures from input file. Default: read from stdin. Format must be dot-bracket structures, each per one line with a trailing line containing only a semi-colon.")
+    parser.add_argument('--version', action='version', version='%(prog)s of RNARedPrint 0.3')
+    parser.add_argument("-i", "--input", type=argparse.FileType('r'), default=sys.stdin, help="Read structures from input file. Default: read from stdin. Format must be dot-bracket structures, each per one line with a trailing line containing only a semi-colon.")
     parser.add_argument("-T", "--temperature", type=float, default=37.0, help='Temperature of the energy calculations.')
     parser.add_argument("-n", "--number", type=int, default=1000, help='Number of designs to generate')
     parser.add_argument("-m", "--model", type=str, default='basepairs', help='Model for getting a new sequence: uniform, nussinov, basepairs, stacking')
+    parser.add_argument("-e", "--energy", type=float, default=None, help='Target energy')
     parser.add_argument("-g", "--gc", type=float, default=0.5, help='Target GC content.')
     parser.add_argument("-t", "--simple_tolerance", type=float,
             default=0.30, help='Tolerated relative deviation of simple energies.')
@@ -103,7 +105,7 @@ def main():
         print("# Options: number={0:d}, model={1:}, temperature={2:}".format(args.number, args.model, args.temperature))
 
     data = ''
-    for line in sys.stdin:
+    for line in args.input:
         data = data + '\n' + line
     (structures, constraint, start_sequence, _) = read_input(data)
 
@@ -135,13 +137,17 @@ def main():
         stacksize = 1000
     sampler = RPSampler(structures, model=args.model, temperature=args.temperature, stacksize=stacksize, StopConstruct=True, debug=args.debug)
     construction_time = sampler.construction_time
+
     # get first sequence sample with energies with GC weight optimization and fixed high weights
     initialsample = take(1000,
                          Sample(sampler, nstr, target_energies=None,
                                 target_GC=args.gc, args=args))
 
     # get target energies
-    target_energies = getTargetEnergy(structures, initialsample, args)
+    if args.energy is None:
+        target_energies = getTargetEnergy(structures, initialsample, args)
+    else:
+        target_energies = [args.energy]*nstr
 
     target_turner_energies = target_energies[:]
 

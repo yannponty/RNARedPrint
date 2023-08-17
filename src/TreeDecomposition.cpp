@@ -5,29 +5,29 @@
 
 Bag::Bag(int i)
 {
-  id = i;  
+  id = i;
   parent = NULL;
   //cout << "[+1']";
 }
 
 void Bag::addIndex(int i){
-  indices.push_back(i);  
-}        
-
-void Bag::addChild(Bag * b){
-  children.push_back(b);  
-  b->setParent(this);
-}        
-
-void Bag::setParent(Bag * b){
-  parent = b;  
+  indices.push_back(i);
 }
 
-// Checks that there is exactly one proper index per bag, and put it 
+void Bag::addChild(Bag * b){
+  children.push_back(b);
+  b->setParent(this);
+}
+
+void Bag::setParent(Bag * b){
+  parent = b;
+}
+
+// Checks that there is exactly one proper index per bag, and put it
 // at the end of the list for conveniency of future accesses
 void Bag::orderIndices(){
   assert(numProper()==1);
-  int proper = getProperIndices()[0];      
+  int proper = getProperIndices()[0];
   (*remove(indices.begin(), indices.end(), proper)) = proper;
 }
 
@@ -39,7 +39,7 @@ int Bag::numProper(){
 void
 Bag::precomputeProperIndices() {
     if (parent==NULL){
-	proper_indices = indices; 
+	proper_indices = indices;
     }
     else{
 	proper_indices = setSubstract(indices,parent->indices);
@@ -55,7 +55,7 @@ void
 Bag::precomputeProperParentIndices(){
   if (parent==NULL){
     vector<int> empty;
-    proper_parent_indices = empty; 
+    proper_parent_indices = empty;
   }
   else{
     proper_parent_indices = setSubstract(indices,getProperIndices());
@@ -95,12 +95,12 @@ const vector<Loop *> &Bag::getLoops()
 
 vector<int> &
 Bag::getIndices(){
-    return indices; 
+    return indices;
 }
 
 int Bag::width(){
-  return indices.size();  
-}        
+  return indices.size();
+}
 
 int Bag::getId()
 {  return id;  }
@@ -209,21 +209,21 @@ void TreeDecomposition::normalize(){
       x->precomputeProperIndices();
       x->precomputeProperParentIndices();
   }
-  
+
   for(int i=0;i<numBags;i++)
   {
-    
+
     //cout <<endl<<"(1)";
     Bag * b = bags[i];
     //cout <<"(1a)";
     vector<int> properIndices = b->getProperIndices();
     //cout <<"(1b)"<<properIndices;
-    // More than a single proper index will mess with the DP, 
-    // so we introduce a sequence of intermediate bags 
+    // More than a single proper index will mess with the DP,
+    // so we introduce a sequence of intermediate bags
     if (properIndices.size()>1)
     {
       //cout <<"(2)";
-      // Parent bags must be propagated, 
+      // Parent bags must be propagated,
       // and proper indices must be added gradually
       vector<int> parentIndices = b->getProperParentIndices();
       //cout <<"(2b)";
@@ -236,7 +236,7 @@ void TreeDecomposition::normalize(){
         // each bag consist of the parent indices...
         for(unsigned int k=0;k<parentIndices.size();k++)
         { newBag->addIndex(parentIndices[k]); }
-        // ... augmented with j+1 proper indices            
+        // ... augmented with j+1 proper indices
         for(unsigned int k=0;k<=j;k++)
         { newBag->addIndex(properIndices[k]); }
 
@@ -249,15 +249,15 @@ void TreeDecomposition::normalize(){
           newBag->parent = b->parent;
           if (newBag->parent!=NULL)
           {  newBag->parent->replaceChild(b,newBag);  }
-          // Current bag was one of the roots... update roots list 
+          // Current bag was one of the roots... update roots list
           // to include the first bag of the new list
-          else 
+          else
           {
             replaceRoot(b->getId(), newBag->getId());
           }
           //cout <<"(6)";
         }
-        // otherwise, the bag added at the previous step 
+        // otherwise, the bag added at the previous step
         // is the parent of the current bag
         else
         {  bags[bags.size()-1]->addChild(newBag); }
@@ -268,7 +268,7 @@ void TreeDecomposition::normalize(){
         //cout <<"(8)";
       }
       //cout <<"(9)";
-      // When all is said and done, the last bag of the 
+      // When all is said and done, the last bag of the
       // created sequence must point to the complete bag
       bags[bags.size()-1]->addChild(b);
       // replace root if necessary
@@ -280,7 +280,7 @@ void TreeDecomposition::normalize(){
       x->precomputeProperParentIndices();
   }
 
-  
+
   if (DEBUG) cout <<"After normalization:"<<endl;
   if (DEBUG) show(1);
   for(unsigned int i=0;i<bags.size();i++)
@@ -292,7 +292,7 @@ void TreeDecomposition::normalize(){
   if (DEBUG) show(1);
 
 
-  
+
 }
 
 void TreeDecomposition::replaceRoot(int from, int to){
@@ -328,11 +328,11 @@ void TreeDecomposition::loadFromFile(string path){
   while(getline(infile, line)){
     //  cerr << line << endl;
   	if(line[0] == 'c') continue; // comment line
-  	if(line[0] == 's') continue; 
+  	if(line[0] == 's') continue;
   	// solution line s which contains the string td, followed by number of bags, the width, the vertices of the original input graph
-  	
+
   	vector<string> data = split(trim(line),' ');
-  	
+
   	if(line[0] == 'b'){ // bag line
   		int dataSize = data.size();
   		if (dataSize-3 > tw) tw = dataSize-3;
@@ -407,10 +407,10 @@ void TreeDecomposition::loadFromFile(string path){
   /*
   while (std::getline(infile, line))
   {
-    vector<string> data = split(trim(line),' ');  
+    vector<string> data = split(trim(line),' ');
     if(data.size()>1)
     {
-      string first = data[0];  
+      string first = data[0];
       if (first[first.length()-1]==':')
       {
         string sidbag = first.substr(3,first.length()-1);
@@ -430,22 +430,22 @@ void TreeDecomposition::loadFromFile(string path){
       {
         int ib1,ib2;
         string sb1 = data[0].substr(3);
-        std::istringstream(sb1) >> ib1;            
+        std::istringstream(sb1) >> ib1;
         string sb2 = data[1].substr(3);
         std::istringstream(sb2) >> ib2;
         edges[ib1-1].push_back(ib2-1);
         edges[ib2-1].push_back(ib1-1);
       }
-    }  
+    }
   }
   */
-  
+
   // Find lowest degree bag => root
   bool seen[bags.size()];
   for(unsigned int i=0;i<bags.size();i++){
     seen[i]=false;
   }
-  
+
   int minB;
   do{
     minB = -1;
@@ -462,7 +462,7 @@ void TreeDecomposition::loadFromFile(string path){
     if (minB!=-1)
     {
       // This bag was not 'seen' by previous iteration(s)
-      // => new connected component starts here! 
+      // => new connected component starts here!
       roots.push_back(minB);
       // Add children/parents to bags
       stack<int> p;
@@ -482,7 +482,7 @@ void TreeDecomposition::loadFromFile(string path){
               bags[b]->addChild(bags[child]);
               bags[child]->setParent(bags[b]);
               p.push(child);
-            } 
+            }
           }
         }
       }
@@ -490,8 +490,8 @@ void TreeDecomposition::loadFromFile(string path){
   }
   while(minB!=-1);
   // Replace bags with >1 proper indices with sequences
-  
-  normalize();      
+
+  normalize();
 }
 
 
@@ -557,11 +557,12 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
 {
     string tmpfilein = "./tmp.dgf";
     string tmpfileout = "./tmp.td";
-    string baselib = "lib";
-    string basebin = "bin";
+
+    string baselib = prefix_path_+"lib";
+    string basebin = prefix_path_+"bin";
 
     TreeDecomposition * result = new TreeDecomposition();
-		
+
     TreeDecomposition * td = new TreeDecomposition();
     saveAsDGF(structures,tmpfilein,1);
 
@@ -571,7 +572,12 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
     {
         // library LIBTW
         string cmd = string("java -cp "+baselib+"/treewidth-java nl.uu.cs.treewidth.TreeDecomposer 2 ./"+tmpfilein + string(" ./") + tmpfileout + string(" tmp.dot >out.tmp "));
-        system(cmd.c_str());
+        int ret = system(cmd.c_str());
+
+        if (ret != 0) {
+            cerr << "Cannot perform tree decomposition. Likely the libarry libtw cannot be found in \""<<baselib<<"\""<<endl;
+        }
+
         //new TreeDecomposition();
         transFileFormat(tmpfileout);
         td->loadFromFile(tmpfileout);
@@ -579,7 +585,7 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
         //remove(tmpfilein.c_str());
         //remove(tmpfileout.c_str());
         //cout << "LIBTW treewidth: " << result->tw << endl;
-		td->reset();		
+		td->reset();
     }
 
     saveAsDGF(structures,tmpfilein,2);
@@ -598,7 +604,7 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
         }
         td->reset();
     }
-    
+
     // by Strasser (Karlsruhe Institute of Technology)
     if (USE_STRASSER)
     {
@@ -614,7 +620,7 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
         td->reset();
     }
 
-    
+
     // by Gaspers, Gudmundsson, Jones, Mestre, Rummele  (UNSW and University of Sidney)
     if (USE_GASPERS_ET_AL)
     {
@@ -633,8 +639,8 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
         }
         td->reset();
     }
-    
-    
+
+
     // by Bannach, Berndt, Ehlers (Luebeck University)
     if (USE_BANACH_ET_AL)
     {
@@ -649,7 +655,7 @@ TreeDecomposition* TDLibFactory::makeTD(vector<SecondaryStructure *>& structures
         }
         td->reset();
     }
-    
+
     // by Joglekar, Kamble, Pandian (IIT Madras)
     if (USE_JOGLEKAR_ET_AL)
     {
@@ -681,18 +687,18 @@ void TDLibFactory::transFileFormat(string path)
 	if(input.is_open()){
 		string line;
 		while(getline(input, line)){
-			
+
 			std::regex node("[ \\t]*bag(\\d+) *\\[label=\" *(.+?) *\"\\]$");
 			std::smatch fnode;
 			std::regex_search(line, fnode, node);
-		
+
 			if(fnode.size() > 2){
 				result.append("b ");
 				result.append(fnode[1]);
 				result.push_back(' ');
 				string bag_content = fnode[2];
 				string token;
-				vector<string> data = split(trim(bag_content),' '); 
+				vector<string> data = split(trim(bag_content),' ');
 				for(int i=0; i<data.size(); i++){
 					string tmp = data[i];
 					if(tmp[0] == '\\'){
